@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>关于 | Moltemort&#39;s Blog</title>
-<link rel="shortcut icon" href="https://Moltemort.github.io/favicon.ico?v=1620042934279">
+<link rel="shortcut icon" href="https://Moltemort.github.io/favicon.ico?v=1620048665909">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://Moltemort.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="关于 | Moltemort&#39;s Blog - Atom Feed" href="https://Moltemort.github.io/atom.xml">
@@ -33,7 +33,7 @@ Moltemort，AKA 骆尚禾谷，前端新手一枚，目前在字节跳动
       <div class="main-content">
         <div class="site-header">
   <a href="https://Moltemort.github.io">
-  <img class="avatar" src="https://Moltemort.github.io/images/avatar.png?v=1620042934279" alt="">
+  <img class="avatar" src="https://Moltemort.github.io/images/avatar.png?v=1620048665909" alt="">
   </a>
   <h1 class="site-title">
     Moltemort&#39;s Blog
@@ -146,6 +146,32 @@ NodeJS</strong></p>
 
         
 
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'dda136bbf45377c648de',
+    clientSecret: 'f43305dcc30bf8a19537657df304ae5532b31dda',
+    repo: 'Moltemorts-Blog-Storage',
+    owner: 'Moltemort',
+    admin: ['Moltemort'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
         
 
         <div class="site-footer">
