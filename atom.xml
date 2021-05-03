@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Moltemort.github.io</id>
     <title>Moltemort&apos;s Blog</title>
-    <updated>2021-05-03T13:35:51.042Z</updated>
+    <updated>2021-05-03T14:49:55.733Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Moltemort.github.io"/>
     <link rel="self" href="https://Moltemort.github.io/atom.xml"/>
@@ -10,4 +10,15 @@
     <logo>https://Moltemort.github.io/images/avatar.png</logo>
     <icon>https://Moltemort.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, Moltemort&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[Back2Blog]]></title>
+        <id>https://Moltemort.github.io/post/back2blog/</id>
+        <link href="https://Moltemort.github.io/post/back2blog/">
+        </link>
+        <updated>2021-05-03T14:42:16.000Z</updated>
+        <content type="html"><![CDATA[<p>本科时自己买阿里云服务器搭的博客，因为服务器过期，数据没备份早已消失在风中，只剩下域名还在了🤷‍♂<br>
+工作10个月业务十分繁忙，回首来看总感觉积累的成长没得到记录。</p>
+<p>所以我决定重新Back2Blog，就从这个五一假期，从今天开始吧~</p>
+]]></content>
+    </entry>
 </feed>
