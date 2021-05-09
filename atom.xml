@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Moltemort.github.io</id>
     <title>Moltemort&apos;s Blog</title>
-    <updated>2021-05-09T09:47:14.561Z</updated>
+    <updated>2021-05-09T09:55:16.533Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Moltemort.github.io"/>
     <link rel="self" href="https://Moltemort.github.io/atom.xml"/>
@@ -31,8 +31,6 @@
 <p>知道怎么去做</p>
 </li>
 </ol>
-<figure data-type="image" tabindex="1"><img src="https://Moltemort.github.io/post-images/1620539919643.jpeg" alt="" loading="lazy"></figure>
-<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">拆包</div>
 <p>根据 <a href="https://webpack.js.org/glossary/">Webpack 词汇表</a>，有两种不同类型的文件拆分方式。 这两个概念听起来可以互换，但显然并不是这样：</p>
 <p><strong>Bundle splitting</strong>：创建更多，更小的文件（但不管怎样，每个网络请求中都要加载它们），来优化缓存。<br>
 <strong>Code splitting</strong>：动态加载代码，用户可以仅下载他们正在查看的网站部分所需的代码。</p>
@@ -83,7 +81,7 @@ module.exports = {
 <p>（对于那些刚开始学习缓存更新策略的人：每当我提到<code>main.js</code>时，实际上是在说<code>main.xMePWxHo.js</code>之类的东西，这一坨疯狂的字母串是文件内容的哈希。这意味着当程序中代码更改时会产生不同的文件名 ，从而迫使浏览器下载新文件。）</p>
 <p>每周我们会对网站进行一些新更改，包中内容哈希都会更改。 所以，在每周 Alice 访问我们的网站时，都必须要下载一个新的400 KB文件。</p>
 <p>如果我们要做一个花里胡哨的表，它看起来就像这样。</p>
-<figure data-type="image" tabindex="2"><img src="https://Moltemort.github.io/post-images/1620541076491.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="1"><img src="https://Moltemort.github.io/post-images/1620541076491.png" alt="" loading="lazy"></figure>
 <div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">世界上最没用的 Total 统计</div>
 <p>这10周积起来，<strong>就是 4.12 MB</strong>。</p>
 <p>我们可以做得更好。</p>
@@ -255,7 +253,7 @@ module.exports = {
 <p>因此我们所需要担心的程度正确的是：完全没有。</p>
 <p>在测试 1 vs 19 个文件时，我在想我可以在一些不同的网络上使用它，包括HTTP/1.1。</p>
 <p>然后下面是我搞的表格，强力支撑了“文件越多越好”的想法：</p>
-<figure data-type="image" tabindex="3"><img src="https://Moltemort.github.io/post-images/1620547675439.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://Moltemort.github.io/post-images/1620547675439.png" alt="" loading="lazy"></figure>
 <div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">（从Firebase静态主机)加载的同一190 KB网站）</div>
 <p>在 3G 和 4G 上，当有 19 个文件时，此站点的加载时间减少了 30％。</p>
 <p>真的如此吗？</p>
