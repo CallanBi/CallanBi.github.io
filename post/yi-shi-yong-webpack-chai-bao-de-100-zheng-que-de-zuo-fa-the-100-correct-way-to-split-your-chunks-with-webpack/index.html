@@ -1,19 +1,14 @@
-
 <!DOCTYPE html>
 <html>
   <head>
-    
-<meta charset="utf-8" >
+    <meta charset="utf-8" >
 
 <title>【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack | Moltemort&#39;s Blog</title>
-<meta name="description" content="Moltemort 的博客，记录技术成长和日常">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://Moltemort.github.io/favicon.ico?v=1625673561485">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="shortcut icon" href="https://Moltemort.github.io/favicon.ico?v=1625673802904">
 <link rel="stylesheet" href="https://Moltemort.github.io/styles/main.css">
 
 
@@ -24,88 +19,100 @@
   
 
 
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 
 
 
+    <meta name="description" content="
+
+技术积累，从翻译优质文章开始。本文翻译自：The 100% correct way to split your chunks with Webpack
+
+
+为自己网站的用户找出推送文件的最好方式是一件很麻烦的事。 太多不同的场景，不同的..." />
+    <meta name="keywords" content="好文翻译" />
   </head>
   <body>
     <div id="app" class="main">
-      <div class="site-header-container">
-  <div class="site-header">
-    <div class="left">
-      <a href="https://Moltemort.github.io">
-        <img class="avatar" src="https://Moltemort.github.io/images/avatar.png?v=1625673561485" alt="" width="32px" height="32px">
-      </a>
-      <a href="https://Moltemort.github.io">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://Moltemort.github.io">
+        <img src="https://Moltemort.github.io/images/avatar.png?v=1625673802904" class="site-logo">
         <h1 class="site-title">Moltemort&#39;s Blog</h1>
       </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
     </div>
-    <div class="right">
-      <transition name="fade">
-        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
-      </transition>
-    </div>
-  </div>
-</div>
-
-<transition name="fade">
-  <div class="menu-container" style="display: none;" v-show="menuVisible">
-    <div class="menu-list">
+    <div>
       
         
-          <a href="/" class="menu purple-link">
+          <a href="/" class="site-nav">
             首页
           </a>
         
       
         
-          <a href="/archives" class="menu purple-link">
+          <a href="/archives" class="site-nav">
             归档
           </a>
         
       
         
-          <a href="/tags" class="menu purple-link">
+          <a href="/tags" class="site-nav">
             标签
           </a>
         
       
         
-          <a href="/post/about" class="menu purple-link">
+          <a href="/post/about" class="site-nav">
             关于
           </a>
         
       
     </div>
   </div>
-</transition>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Moltemort" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Moltemort 的博客，记录技术成长和日常
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://Moltemort.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
 
 
-      <div class="content-container">
-        <div class="post-detail">
-          
-            <div class="feature-container" style="background-image: url('https://Moltemort.github.io/post-images/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack.jpeg')">
-            </div>
-          
-          <h2 class="post-title">【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack</h2>
-          <div class="post-info post-detail-info">
-            <span><i class="icon-calendar-outline"></i> 2021-05-09</span>
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack</h2>
+            <div class="post-date">2021-05-09</div>
             
-              <span>
-                <i class="icon-pricetags-outline"></i>
-                
-                  <a href="https://Moltemort.github.io/tag/7jAHe2zhr/">
-                    好文翻译
-                    
-                  </a>
-                
-              </span>
+              <div class="feature-container" style="background-image: url('https://Moltemort.github.io/post-images/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack.jpeg')">
+              </div>
             
-          </div>
-          <div class="post-content">
-            <!-- more -->
+            <div class="post-content" v-pre>
+              <!-- more -->
 <blockquote>
 <p>技术积累，从翻译优质文章开始。本文翻译自：<a href="https://medium.com/hackernoon/the-100-correct-way-to-split-your-chunks-with-webpack-f8a9df5b7758">The 100% correct way to split your chunks with Webpack</a></p>
 </blockquote>
@@ -496,51 +503,45 @@ export default AdminPageLoader;
 <hr />
 <mark style="font-weight: bold; font-size: 25px">本文由本博客博主 Moltemort 翻译，转载本文请注明源链接</mark>
 
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://Moltemort.github.io/tag/7jAHe2zhr/" class="tag">
+                    好文翻译
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://Moltemort.github.io/post/back2blog/">
+                  <h3 class="post-title">
+                    Back2Blog
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
           </div>
+
         </div>
-
-        
-          <div class="next-post">
-            <a class="purple-link" href="https://Moltemort.github.io/post/back2blog/">
-              <h3 class="post-title">
-                下一篇：Back2Blog
-              </h3>
-            </a>
-          </div>
-          
       </div>
-
-      
-        
-          <div id="gitalk-container"></div>
-        
-
-        
-      
-
-      <div class="site-footer">
-  <div class="slogan">Moltemort 的博客，记录技术成长和日常</div>
-  <div class="social-container">
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  </div>
-   | <a class="rss" href="https://Moltemort.github.io/atom.xml" target="_blank">RSS</a>
-</div>
-
-
     </div>
-    <script type="application/javascript">
 
-hljs.initHighlightingOnLoad()
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
 
 var app = new Vue({
   el: '#app',
@@ -550,6 +551,13 @@ var app = new Vue({
 })
 
 </script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
 
 
 
