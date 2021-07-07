@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Moltemort.github.io</id>
     <title>Moltemort&apos;s Blog</title>
-    <updated>2021-07-07T16:10:23.521Z</updated>
+    <updated>2021-07-07T16:13:03.418Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Moltemort.github.io"/>
     <link rel="self" href="https://Moltemort.github.io/atom.xml"/>
@@ -30,7 +30,7 @@ import * as ReactDom from 'react-dom';
 这种引入方式被称为 <code>default export</code> 。不推荐的原因是第React 仅仅是作为一个命名空间存在的，我们并不会像使用一个值一样来使用 React。从 React 16.13.0 开始，React 的导出方式也已经更正为 <code>export {xxx, ...}</code>的形式了(<a href="https://github.com/facebook/react/commit/60016c448bb7d19fc989acd05dda5aca2e124381#diff-a9c08afc9ba1304a73e4235b3016b97c">commit</a>)。之所以<code>default export</code>还可以使用，是因为目前 React 的构建产物是 Commonjs 规范的，webpack 等构建工具做了兼容。</p>
 <h1 id="组件开发">组件开发</h1>
 <h2 id="1-尽量使用function-component声明即-reactfc">1. 尽量使用Function Component声明，即 React.FC：</h2>
-<pre><code class="language-typescript">export interface Props {
+<pre><code class="language-javascript">export interface Props {
   /** The user's name */
   name: string;
   /** Should the name be rendered in bold */
@@ -78,7 +78,7 @@ const PrintName: React.FC&lt;Props&gt; = (props) =&gt; {
 <p>推荐安装vscode 插件：<a href="https://marketplace.visualstudio.com/items?itemName=AlDuncanson.react-hooks-snippets">React Hooks Snippets</a> 快速写 hook，提高开发效率。</p>
 <h2 id="2-usestatet-当状态初始值为空时推荐写出完整泛型否则可以自动推断类型">2. useState<T>： 当状态初始值为空时，推荐写出完整泛型，否则可以自动推断类型。</h2>
 <p>原因：一些状态初始值为空时，需要显示地声明类型：</p>
-<pre><code class="language-typescript">const [user, setUser] = React.useState&lt;User | null&gt;(null)
+<pre><code class="language-javascript">const [user, setUser] = React.useState&lt;User | null&gt;(null)
 </code></pre>
 <p>注意：如果初始值为 undefined，可不用在泛型中加上 undefined。</p>
 <h2 id="3-usememo-和-usecallback-会隐式推断类型推荐不传泛型">3. useMemo() 和 useCallback() 会隐式推断类型，推荐不传泛型</h2>
@@ -88,7 +88,7 @@ const PrintName: React.FC&lt;Props&gt; = (props) =&gt; {
 <li>当函数用作其他 hooks 的依赖项时 <code>useEffect(...，[callback])</code>。</li>
 </ul>
 <h2 id="4-自定义hook如果返回为数组需要手动添加-const-断言">4. 自定义hook如果返回为数组，需要手动添加 const 断言：</h2>
-<pre><code class="language-typescript">function useLoading() {
+<pre><code class="language-javascript">function useLoading() {
   const [isLoading, setLoading] = React.useState(false);
   const load = (aPromise: Promise&lt;any&gt;) =&gt; {
     setLoading(true)
@@ -100,7 +100,7 @@ const PrintName: React.FC&lt;Props&gt; = (props) =&gt; {
 }
 </code></pre>
 <p>或者可以直接定义返回类型：</p>
-<pre><code class="language-typescript">export function useLoading(): [
+<pre><code class="language-javascript">export function useLoading(): [
   boolean,
   (aPromise: Promise&lt;any&gt;) =&gt; Promise&lt;any&gt;
 ] {
@@ -114,7 +114,7 @@ const PrintName: React.FC&lt;Props&gt; = (props) =&gt; {
 </code></pre>
 <h1 id="其他">其他</h1>
 <h2 id="5-使用默认参数值代替默认属性">5. 使用默认参数值代替默认属性</h2>
-<pre><code class="language-typescript">interface GreetProps { age?: number }
+<pre><code class="language-javascript">interface GreetProps { age?: number }
 const defaultProps: GreetProps = { age: 21 };
 const Greet = (props: GreetProps = defaultProps) =&gt; {
   /* ... */
@@ -122,7 +122,7 @@ const Greet = (props: GreetProps = defaultProps) =&gt; {
 </code></pre>
 <p>原因：Function Component 的 defaultProps <a href="https://twitter.com/hswolff/status/1133759319571345408">最终会被废弃</a>，不推荐使用。<br>
 如果仍要使用defaultProps，推荐如下方式：</p>
-<pre><code class="language-typescript">interface IProps {
+<pre><code class="language-javascript">interface IProps {
   name: string
 }
 const defaultProps = {
@@ -144,7 +144,7 @@ const el = &lt;TestComponent name=&quot;foo&quot; /&gt;
 <p>type 和 interface 的区别：type 类型不能二次编辑，而 interface 可以随时扩展。</p>
 <h2 id="7-使用-componentprops-获取未被导出的组件参数类型使用-returntype-获取返回值类型">7. 使用 ComponentProps 获取未被导出的组件参数类型，使用 ReturnType 获取返回值类型</h2>
 <p>获取组件参数类型：</p>
-<pre><code class="language-typescript">// 获取参数类型
+<pre><code class="language-javascript">// 获取参数类型
 import { Button } from 'library' // 但是未导出props type
 type ButtonProps = React.ComponentProps&lt;typeof Button&gt; // 获取props
 type AlertButtonProps = Omit&lt;ButtonProps, 'onClick'&gt; // 去除onClick
@@ -153,14 +153,14 @@ const AlertButton: React.FC&lt;AlertButtonProps&gt; = props =&gt; (
 )
 </code></pre>
 <p>获取返回值类型：</p>
-<pre><code class="language-typescript">// 获取返回值类型
+<pre><code class="language-javascript">// 获取返回值类型
 function foo() {
   return { baz: 1 }
 }
 type FooReturn = ReturnType&lt;typeof foo&gt; // { baz: number }
 </code></pre>
 <h2 id="8-对-type-或-interface-进行注释时尽量使用-以便获得更好的类型提示">8. 对 type 或 interface 进行注释时尽量使用 /** */，以便获得更好的类型提示</h2>
-<pre><code class="language-typescript">/* ✅ */
+<pre><code class="language-javascript">/* ✅ */
 /**
  * @param a 注释1
  * @param b 注释2
@@ -177,7 +177,7 @@ const testObj: Test = {
 <p>当 hover 到 <code>Test</code> 时类型提示更为友好：<br>
 <img src="https://Moltemort.github.io/post-images/1625414942775.png" alt="" loading="lazy"></p>
 <h2 id="9-组件-props-ts-类型规范">9. 组件 Props ts 类型规范</h2>
-<pre><code class="language-typescript">type AppProps = {
+<pre><code class="language-javascript">type AppProps = {
   /** string */
   message: string;
   /** number */
@@ -218,7 +218,7 @@ const testObj: Test = {
 </code></pre>
 <h2 id="10-组件中-event-处理">10. 组件中 event 处理</h2>
 <p>常见的Eventl类型：</p>
-<pre><code class="language-typescript">React.SyntheticEvent&lt;T = Element&gt;
+<pre><code class="language-javascript">React.SyntheticEvent&lt;T = Element&gt;
 React.ClipboardEvent&lt;T = Element&gt;
 React.DragEvent&lt;T = Element&gt;
 React.FocusEvent&lt;T = Element&gt;
@@ -234,10 +234,10 @@ React.AnimationEvent&lt;T = Element&gt;
 React.TransitionEvent&lt;T = Element&gt;
 </code></pre>
 <p>定义事件回调函数：</p>
-<pre><code class="language-typescript">type changeFn = (e: React.FormEvent&lt;HTMLInputElement&gt;) =&gt; void;
+<pre><code class="language-javascript">type changeFn = (e: React.FormEvent&lt;HTMLInputElement&gt;) =&gt; void;
 </code></pre>
 <p>如果不太关心事件的类型，可以直接使用 React.SyntheticEvent，如果目标表单有想要访问的自定义命名输入，可以使用类型扩展:</p>
-<pre><code class="language-typescript">const App: React.FC = () =&gt; {
+<pre><code class="language-javascript">const App: React.FC = () =&gt; {
   const onSubmit = (e: React.SyntheticEvent) =&gt; {
     e.preventDefault();
     const target = e.target as typeof e.target &amp; {
@@ -263,7 +263,7 @@ React.TransitionEvent&lt;T = Element&gt;
 <h2 id="11-尽量使用-optional-channing">11. 尽量使用 optional channing</h2>
 <h2 id="12-尽量使用-reactcomponentpropstypeof-component-减少非必要props导出">12. 尽量使用 React.ComponentProps<typeof Component> 减少非必要props导出</h2>
 <h2 id="13-不要在-type-或-interface-中使用函数声明">13. 不要在 type 或 interface 中使用函数声明</h2>
-<pre><code class="language-typescript">/** ✅ */
+<pre><code class="language-javascript">/** ✅ */
 interface ICounter {
   start: (value: number) =&gt; string
 }
@@ -275,7 +275,7 @@ interface ICounter1 {
 </code></pre>
 <h2 id="14-当局部组件结合多组件进行组件间状态通信时如果不是特别复杂则不需要用mobx或者-建议结合-usereducer-和-usecontext-一起使用频繁的组件间通信最佳实践">14. 当局部组件结合多组件进行组件间状态通信时，如果不是特别复杂，则不需要用mobx或者 建议结合 useReducer() 和 useContext() 一起使用，频繁的组件间通信最佳实践：</h2>
 <p><code>Store.ts</code></p>
-<pre><code class="language-typescript">import * as React from 'react';
+<pre><code class="language-javascript">import * as React from 'react';
 
 export interface State {
   state1: boolean;
@@ -308,7 +308,7 @@ export const reducer: React.Reducer&lt;State, Action&gt; = (state, action) =&gt;
 };
 </code></pre>
 <p><code>WithProvider.tsx</code></p>
-<pre><code class="language-typescript">import * as React from 'react';
+<pre><code class="language-javascript">import * as React from 'react';
 import { StoreContext, reducer, initState } from './store';
 
 const { useReducer } = React;
@@ -324,7 +324,7 @@ const WithProvider: React.FC&lt;Record&lt;string, unknown&gt;&gt; = (props: Reac
 export default WithProvider;
 </code></pre>
 <p>父组件：</p>
-<pre><code class="language-typescript">import * as React from 'react';
+<pre><code class="language-javascript">import * as React from 'react';
 import WithProvider from './withProvider';
 import Component1 from './components/Component1';
 import Component2 from './components/Component2';
@@ -351,7 +351,7 @@ export default Rank;
 
 </code></pre>
 <p>子组件只需要 import <code>StoreContext</code> 之后 <code>useContext()</code> 就能得到 state 和 dispatch</p>
-<pre><code class="language-typescript">import * as React from 'react';
+<pre><code class="language-javascript">import * as React from 'react';
 import { StoreContext } from '../../store';
 
 const { useContext } = React;
