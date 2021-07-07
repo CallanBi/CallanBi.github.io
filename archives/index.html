@@ -1,133 +1,163 @@
 <html>
   <head>
-    <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+<meta charset="utf-8" >
+
 <title>Moltemort&#39;s Blog</title>
-<link rel="shortcut icon" href="https://Moltemort.github.io/favicon.ico?v=1625671424062">
-<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<meta name="description" content="Moltemort 的博客，记录技术成长和日常">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://Moltemort.github.io/favicon.ico?v=1625672742412">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Moltemort.github.io/styles/main.css">
-<link rel="alternate" type="application/atom+xml" title="Moltemort&#39;s Blog - Atom Feed" href="https://Moltemort.github.io/atom.xml">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
 
 
 
-    <meta name="description" content="Moltemort 的博客，记录技术成长和日常" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
   </head>
   <body>
-    <div class="main">
-      <div class="main-content">
-        <div class="site-header">
-  <a href="https://Moltemort.github.io">
-  <img class="avatar" src="https://Moltemort.github.io/images/avatar.png?v=1625671424062" alt="">
-  </a>
-  <h1 class="site-title">
-    Moltemort&#39;s Blog
-  </h1>
-  <p class="site-description">
-    Moltemort 的博客，记录技术成长和日常
-  </p>
-  <div class="menu-container">
-    
-      
-        <a href="/" class="menu">
-          首页
-        </a>
-      
-    
-      
-        <a href="/archives" class="menu">
-          归档
-        </a>
-      
-    
-      
-        <a href="/tags" class="menu">
-          标签
-        </a>
-      
-    
-      
-        <a href="/post/about" class="menu">
-          关于
-        </a>
-      
-    
-  </div>
-  <div class="social-container">
-    
-      
-        <a href="https://github.com/Moltemort" target="_blank">
-          <i class="ri-github-line"></i>
-        </a>
-      
-    
-      
-    
-      
-    
-      
-        <a href="https://www.zhihu.com/people/moltemort" target="_blank">
-          <i class="ri-zhihu-line"></i>
-        </a>
-      
-    
-      
-    
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://Moltemort.github.io">
+        <img class="avatar" src="https://Moltemort.github.io/images/avatar.png?v=1625672742412" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://Moltemort.github.io">
+        <h1 class="site-title">Moltemort&#39;s Blog</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
   </div>
 </div>
 
-    
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
         
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+        <div class="content-container">
+          
+          
 
 <div class="archives-container">
   
     <h2 class="year">2021</h2>
     
       
-        <a href="https://Moltemort.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/" class="post">
-          <h2 class="post-title">
-            TypeScript + React 个人最佳实践(WIP持续补充中)
-          </h2>
-          <div class="time">2021-07-04</div>
-        </a>
+        <article class="post">
+          <a href="https://Moltemort.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/">
+            <h2 class="post-title">
+              TypeScript + React 个人最佳实践(WIP持续补充中)
+              <small>2021-07-04</small>
+            </h2>
+          </a>
+        </article>
       
     
       
-        <a href="https://Moltemort.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/" class="post">
-          <h2 class="post-title">
-            【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack
-          </h2>
-          <div class="time">2021-05-09</div>
-        </a>
+        <article class="post">
+          <a href="https://Moltemort.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/">
+            <h2 class="post-title">
+              【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack
+              <small>2021-05-09</small>
+            </h2>
+          </a>
+        </article>
       
     
       
-        <a href="https://Moltemort.github.io/post/back2blog/" class="post">
-          <h2 class="post-title">
-            Back2Blog
-          </h2>
-          <div class="time">2021-05-03</div>
-        </a>
+        <article class="post">
+          <a href="https://Moltemort.github.io/post/back2blog/">
+            <h2 class="post-title">
+              Back2Blog
+              <small>2021-05-03</small>
+            </h2>
+          </a>
+        </article>
       
     
   
 </div>
 
-    
-        <div class="pagination-container">
-  
-  
-</div>
 
-    
+        </div>
+
         <div class="site-footer">
-  
-  <a class="rss" href="https://Moltemort.github.io/atom.xml" target="_blank">
-    <i class="ri-rss-line"></i> RSS
-  </a>
+  <div class="slogan">Moltemort 的博客，记录技术成长和日常</div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+   | <a class="rss" href="https://Moltemort.github.io/atom.xml" target="_blank">RSS</a>
 </div>
+
 
       </div>
+      <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
     </div>
   </body>
 </html>
