@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://Moltemort.github.io</id>
+    <id>http://Moltemort.github.io</id>
     <title>Moltemort&apos;s Blog</title>
-    <updated>2021-10-31T09:45:16.924Z</updated>
+    <updated>2021-10-31T09:59:45.032Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://Moltemort.github.io"/>
-    <link rel="self" href="https://Moltemort.github.io/atom.xml"/>
+    <link rel="alternate" href="http://Moltemort.github.io"/>
+    <link rel="self" href="http://Moltemort.github.io/atom.xml"/>
     <subtitle>Moltemort 的博客，记录技术成长和日常</subtitle>
-    <logo>https://Moltemort.github.io/images/avatar.png</logo>
-    <icon>https://Moltemort.github.io/favicon.ico</icon>
+    <logo>http://Moltemort.github.io/images/avatar.png</logo>
+    <icon>http://Moltemort.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, Moltemort&apos;s Blog</rights>
     <entry>
         <title type="html"><![CDATA[一个前端的 Golang 语法层面入门感悟（持续补充）]]></title>
-        <id>https://Moltemort.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu-chi-xu-bu-chong/</id>
-        <link href="https://Moltemort.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu-chi-xu-bu-chong/">
+        <id>http://Moltemort.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu-chi-xu-bu-chong/</id>
+        <link href="http://Moltemort.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu-chi-xu-bu-chong/">
         </link>
         <updated>2021-10-23T12:53:01.000Z</updated>
         <content type="html"><![CDATA[<p>写本文主要想对比下 Golang 和通常前端所用的日常开发语言，如 JS 和 TS 之间的异同，以便更好地切换开发时的心智模式。</p>
@@ -197,8 +197,8 @@ func Test() {
     </entry>
     <entry>
         <title type="html"><![CDATA[TypeScript + React 个人最佳实践(WIP持续补充中)]]></title>
-        <id>https://Moltemort.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/</id>
-        <link href="https://Moltemort.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/">
+        <id>http://Moltemort.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/</id>
+        <link href="http://Moltemort.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/">
         </link>
         <updated>2021-07-03T16:11:47.000Z</updated>
         <content type="html"><![CDATA[<h1 id="前置工作">前置工作</h1>
@@ -360,7 +360,7 @@ const testObj: Test = {
 };
 </code></pre>
 <p>当 hover 到 <code>Test</code> 时类型提示更为友好：<br>
-<img src="https://Moltemort.github.io/post-images/1625414942775.png" alt="" loading="lazy"></p>
+<img src="http://Moltemort.github.io/post-images/1625414942775.png" alt="" loading="lazy"></p>
 <h2 id="9-组件-props-ts-类型规范">9. 组件 Props ts 类型规范</h2>
 <pre><code class="language-javascript">type AppProps = {
   /** string */
@@ -577,8 +577,8 @@ export default React.memo(Component1); // 建议有context 的地方最好 memo 
     </entry>
     <entry>
         <title type="html"><![CDATA[【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack]]></title>
-        <id>https://Moltemort.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/</id>
-        <link href="https://Moltemort.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/">
+        <id>http://Moltemort.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/</id>
+        <link href="http://Moltemort.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/">
         </link>
         <updated>2021-05-09T09:45:45.000Z</updated>
         <content type="html"><![CDATA[<!-- more -->
@@ -646,7 +646,7 @@ module.exports = {
 <p>（对于那些刚开始学习缓存更新策略的人：每当我提到<code>main.js</code>时，实际上是在说<code>main.xMePWxHo.js</code>之类的东西，这一坨疯狂的字母串是文件内容的哈希。这意味着当程序中代码更改时会产生不同的文件名 ，从而迫使浏览器下载新文件。）</p>
 <p>每周我们会对网站进行一些新更改，包中内容哈希都会更改。 所以，在每周 Alice 访问我们的网站时，都必须要下载一个新的400 KB文件。</p>
 <p>如果我们要做一个花里胡哨的表，它看起来就像这样。</p>
-<figure data-type="image" tabindex="1"><img src="https://Moltemort.github.io/post-images/1620541076491.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="1"><img src="http://Moltemort.github.io/post-images/1620541076491.png" alt="" loading="lazy"></figure>
 <div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">世界上最没用的 Total 统计</div>
 <p>这10周积起来，<strong>就是 4.12 MB</strong>。</p>
 <p>我们可以做得更好。</p>
@@ -674,7 +674,7 @@ module.exports = {
 <p>还有许多类似于「你tm到底对我的 bundle 做了什么？！」的疑问。</p>
 <p>铛铛！加上<code>optimization.splitChunks.chunks = 'all'</code>是一种「把所有 <code>node_modules</code>里的东西栋放到一个叫<code>vendors~main.js</code>的文件」的说法。</p>
 <p>有了这个基本的 bundle splitting 之后，Alice 还会在每次访问时下载一个新的200 KB的 main.js，但只会在第一周，第八周和第五周下载这个 200 KB 的 <code>vendor.js</code>。<br>
-<img src="https://Moltemort.github.io/post-images/1620542292178.png" alt="" loading="lazy"></p>
+<img src="http://Moltemort.github.io/post-images/1620542292178.png" alt="" loading="lazy"></p>
 <div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">巧了，这两个 bundle 的大小恰好是200 KB。</div>
 <p><strong>总共 2.64 MB。</strong></p>
 <p>减少36％，配置中添加了五行代码，还不赖。 在继续读这篇文章之前，现在就去实践下。 如果需要从Webpack 3 升级到4，不要担心，它非常无痛（而且免费！）。</p>
@@ -735,7 +735,7 @@ module.exports = {
 </li>
 </ul>
 <p>这时，Alice 仍每周重新加载我们200 KB的<code>main.js</code>文件；在首次访问时仍将下载200 KB的 npm 包，但她永远不会再次下载相同的包。<br>
-<img src="https://Moltemort.github.io/post-images/1620544773524.png" alt="" loading="lazy"></p>
+<img src="http://Moltemort.github.io/post-images/1620544773524.png" alt="" loading="lazy"></p>
 <div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">突然发现每个 npm 包都恰好是20 KB。 世所罕见！</div>
 <p><strong>这是2.24MB。</strong></p>
 <p>与比较基准值相比减少了44％，仅仅从博客文章中 copy/plate 了某些代码的你来说，这非常酷。</p>
@@ -786,7 +786,7 @@ module.exports = {
 </code></pre>
 <p>靠谱的 Webpack还会为在 ProductList 和 ProductPage 之间共享的内容创建文件，使得我们不会得到重复的代码。</p>
 <p>大多数情况下，这将为亲爱的 Alice 省下额外的50 KB下载量。<br>
-<img src="https://Moltemort.github.io/post-images/1620545771325.png" alt="" loading="lazy"></p>
+<img src="http://Moltemort.github.io/post-images/1620545771325.png" alt="" loading="lazy"></p>
 <div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">我们在第6周调整了 icon，我十分确定你还记得</div>
 <p><strong>这些仅仅1.815 MB！</strong></p>
 <p>我们已经为 Alice 节省了高达56％的下载量，并且这种节省将（在我们的理论场景中）一直持续到时间尽头。</p>
@@ -818,7 +818,7 @@ module.exports = {
 <p>因此我们所需要担心的程度正确的是：完全没有。</p>
 <p>在测试 1 vs 19 个文件时，我在想我可以在一些不同的网络上使用它，包括HTTP/1.1。</p>
 <p>然后下面是我搞的表格，强力支撑了“文件越多越好”的想法：</p>
-<figure data-type="image" tabindex="2"><img src="https://Moltemort.github.io/post-images/1620547675439.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="http://Moltemort.github.io/post-images/1620547675439.png" alt="" loading="lazy"></figure>
 <div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">（从Firebase静态主机)加载的同一190 KB网站）</div>
 <p>在 3G 和 4G 上，当有 19 个文件时，此站点的加载时间减少了 30％。</p>
 <p>真的如此吗？</p>
@@ -830,7 +830,7 @@ module.exports = {
 <p>讲故事的时间到了！ 我从<a href="https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/">微软官网下载了Windows 7虚拟机</a>来测试这些内容。</p>
 <p>它附带了IE8，但我升级到IE9。</p>
 <p>所以我转到了微软的IE9下载页面，然后……<br>
-<img src="https://Moltemort.github.io/post-images/1620548267039.png" alt="" loading="lazy"></p>
+<img src="http://Moltemort.github.io/post-images/1620548267039.png" alt="" loading="lazy"></p>
 <div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">我天。你在逗我？这还有什么好说哒</div>
 <p>最后关于 HTTP/2 的最后一句话。你知道它现在已经集成到 Node 中了吗？ 如果你想玩一下，我编写了一个带有 gzip，brotli 和响应缓存的<a href="https://gist.github.com/davidgilbertson/e5690c04e06c4882cf5761f8acff36ec">100行HTTP/2 服务器</a>，带来🚢新的测试乐趣。</p>
 <hr />
@@ -975,8 +975,8 @@ export default AdminPageLoader;
     </entry>
     <entry>
         <title type="html"><![CDATA[Back2Blog]]></title>
-        <id>https://Moltemort.github.io/post/back2blog/</id>
-        <link href="https://Moltemort.github.io/post/back2blog/">
+        <id>http://Moltemort.github.io/post/back2blog/</id>
+        <link href="http://Moltemort.github.io/post/back2blog/">
         </link>
         <updated>2021-05-03T14:42:16.000Z</updated>
         <content type="html"><![CDATA[<p>本科时自己买阿里云服务器搭的博客，因为服务器过期，数据没备份早已消失在风中，只剩下域名还在了🤷‍♂<br>
