@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://CallanBi.github.io</id>
     <title>Callan Bi&apos;s Blog</title>
-    <updated>2022-01-12T08:41:38.485Z</updated>
+    <updated>2022-01-12T09:08:23.214Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://CallanBi.github.io"/>
     <link rel="self" href="https://CallanBi.github.io/atom.xml"/>
@@ -12,8 +12,8 @@
     <rights>All rights reserved 2022, Callan Bi&apos;s Blog</rights>
     <entry>
         <title type="html"><![CDATA[一个前端的 Golang 语法层面入门感悟（持续补充）]]></title>
-        <id>https://CallanBi.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu-chi-xu-bu-chong/</id>
-        <link href="https://CallanBi.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu-chi-xu-bu-chong/">
+        <id>https://CallanBi.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu/</id>
+        <link href="https://CallanBi.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu/">
         </link>
         <updated>2021-10-23T12:53:01.000Z</updated>
         <content type="html"><![CDATA[<p>写本文主要想对比下 Golang 和通常前端所用的日常开发语言，如 JS 和 TS 之间的异同，以便更好地切换开发时的心智模式。</p>
