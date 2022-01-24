@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://CallanBi.github.io</id>
     <title>Callan Bi&apos;s Blog</title>
-    <updated>2022-01-13T07:43:11.127Z</updated>
+    <updated>2022-01-24T09:15:10.669Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://CallanBi.github.io"/>
     <link rel="self" href="https://CallanBi.github.io/atom.xml"/>
@@ -569,6 +569,14 @@ export default React.memo(Component1); // 建议有context 的地方最好 memo 
 
 </code></pre>
 <p><code>Store.ts</code> 和 <code>WithProvider.tsx</code> 可以配置成 vscode snippets，需要用到时直接使用。</p>
+<h2 id="15-类-golang-风格的异步接口最佳实践">15. 类 Golang 风格的异步接口最佳实践</h2>
+<pre><code class="language-javascript">const asyncTo = &lt;T, E = Error&gt;(p: Promise&lt;T&gt;): Promise&lt;[T, null] | [undefined, E]&gt; =&gt;
+  p.then&lt;[T, null]&gt;((data: T) =&gt; [data, null]).catch&lt;[undefined, E]&gt;((err: E) =&gt; [undefined, err])
+
+const [res1, err1] = await asyncTo(new Promise(resolve =&gt; resolve('success'))) // res1: 'success', err1: null
+
+const [res2, err2] = await asyncTo(new Promise((_, reject) =&gt; reject('error'))) // res2: undefined, err2: 'error'
+</code></pre>
 <h1 id="参考">参考</h1>
 <p>[1] <a href="https://mp.weixin.qq.com/s/mUblBpj6pmdxz9mLKEDJTw">React + TypeScript 实践</a><br>
 [2] <a href="https://juejin.cn/post/6844903938093744135">精读《React Hooks 最佳实践》</a></p>

@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>TypeScript + React 个人最佳实践(WIP持续补充中) | Callan Bi&#39;s Blog</title>
-<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1642059781142">
+<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1643015702409">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://CallanBi.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="TypeScript + React 个人最佳实践(WIP持续补充中) | Callan Bi&#39;s Blog - Atom Feed" href="https://CallanBi.github.io/atom.xml">
@@ -27,7 +27,7 @@ import * as React f..." />
       <div class="main-content">
         <div class="site-header">
   <a href="https://CallanBi.github.io">
-  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1642059781142" alt="">
+  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1643015702409" alt="">
   </a>
   <h1 class="site-title">
     Callan Bi&#39;s Blog
@@ -91,7 +91,7 @@ import * as React f..." />
                 2021-07-04
               </span>
               <span>
-                10 min read
+                11 min read
               </span>
               
             </div>
@@ -466,6 +466,14 @@ export default React.memo(Component1); // 建议有context 的地方最好 memo 
 
 </code></pre>
 <p><code>Store.ts</code> 和 <code>WithProvider.tsx</code> 可以配置成 vscode snippets，需要用到时直接使用。</p>
+<h2 id="15-类-golang-风格的异步接口最佳实践">15. 类 Golang 风格的异步接口最佳实践</h2>
+<pre><code class="language-javascript">const asyncTo = &lt;T, E = Error&gt;(p: Promise&lt;T&gt;): Promise&lt;[T, null] | [undefined, E]&gt; =&gt;
+  p.then&lt;[T, null]&gt;((data: T) =&gt; [data, null]).catch&lt;[undefined, E]&gt;((err: E) =&gt; [undefined, err])
+
+const [res1, err1] = await asyncTo(new Promise(resolve =&gt; resolve('success'))) // res1: 'success', err1: null
+
+const [res2, err2] = await asyncTo(new Promise((_, reject) =&gt; reject('error'))) // res2: undefined, err2: 'error'
+</code></pre>
 <h1 id="参考">参考</h1>
 <p>[1] <a href="https://mp.weixin.qq.com/s/mUblBpj6pmdxz9mLKEDJTw">React + TypeScript 实践</a><br>
 [2] <a href="https://juejin.cn/post/6844903938093744135">精读《React Hooks 最佳实践》</a></p>
@@ -500,6 +508,7 @@ export default React.memo(Component1); // 建议有context 的地方最好 memo 
 <li><a href="#12-%E5%B0%BD%E9%87%8F%E4%BD%BF%E7%94%A8-reactcomponentpropstypeof-component-%E5%87%8F%E5%B0%91%E9%9D%9E%E5%BF%85%E8%A6%81props%E5%AF%BC%E5%87%BA">12. 尽量使用 React.ComponentProps<typeof Component> 减少非必要props导出</a></li>
 <li><a href="#13-%E4%B8%8D%E8%A6%81%E5%9C%A8-type-%E6%88%96-interface-%E4%B8%AD%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0%E5%A3%B0%E6%98%8E">13. 不要在 type 或 interface 中使用函数声明</a></li>
 <li><a href="#14-%E5%BD%93%E5%B1%80%E9%83%A8%E7%BB%84%E4%BB%B6%E7%BB%93%E5%90%88%E5%A4%9A%E7%BB%84%E4%BB%B6%E8%BF%9B%E8%A1%8C%E7%BB%84%E4%BB%B6%E9%97%B4%E7%8A%B6%E6%80%81%E9%80%9A%E4%BF%A1%E6%97%B6%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E7%89%B9%E5%88%AB%E5%A4%8D%E6%9D%82%E5%88%99%E4%B8%8D%E9%9C%80%E8%A6%81%E7%94%A8mobx%E6%88%96%E8%80%85-%E5%BB%BA%E8%AE%AE%E7%BB%93%E5%90%88-usereducer-%E5%92%8C-usecontext-%E4%B8%80%E8%B5%B7%E4%BD%BF%E7%94%A8%E9%A2%91%E7%B9%81%E7%9A%84%E7%BB%84%E4%BB%B6%E9%97%B4%E9%80%9A%E4%BF%A1%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">14. 当局部组件结合多组件进行组件间状态通信时，如果不是特别复杂，则不需要用mobx或者 建议结合 useReducer() 和 useContext() 一起使用，频繁的组件间通信最佳实践：</a></li>
+<li><a href="#15-%E7%B1%BB-golang-%E9%A3%8E%E6%A0%BC%E7%9A%84%E5%BC%82%E6%AD%A5%E6%8E%A5%E5%8F%A3%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">15. 类 Golang 风格的异步接口最佳实践</a></li>
 </ul>
 </li>
 <li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
