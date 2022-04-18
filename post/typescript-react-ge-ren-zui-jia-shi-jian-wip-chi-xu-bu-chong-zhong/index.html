@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>TypeScript + React 个人最佳实践(WIP持续补充中) | Callan Bi&#39;s Blog</title>
-<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1643015968668">
+<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1650300638889">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://CallanBi.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="TypeScript + React 个人最佳实践(WIP持续补充中) | Callan Bi&#39;s Blog - Atom Feed" href="https://CallanBi.github.io/atom.xml">
@@ -27,7 +27,7 @@ import * as React f..." />
       <div class="main-content">
         <div class="site-header">
   <a href="https://CallanBi.github.io">
-  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1643015968668" alt="">
+  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1650300638889" alt="">
   </a>
   <h1 class="site-title">
     Callan Bi&#39;s Blog
@@ -468,11 +468,11 @@ export default React.memo(Component1); // 建议有context 的地方最好 memo 
 <p><code>Store.ts</code> 和 <code>WithProvider.tsx</code> 可以配置成 vscode snippets，需要用到时直接使用。</p>
 <h2 id="15-类-golang-风格的异步接口最佳实践">15. 类 Golang 风格的异步接口最佳实践</h2>
 <pre><code class="language-javascript">const asyncTo = &lt;T, E = Error&gt;(p: Promise&lt;T&gt;): Promise&lt;[T, null] | [undefined, E]&gt; =&gt;
-  p.then&lt;[T, null]&gt;((data: T) =&gt; [data, null]).catch&lt;[undefined, E]&gt;((err: E) =&gt; [undefined, err])
+  p.then&lt;[T, null]&gt;((data: T) =&gt; [data, null]).catch&lt;[undefined, E]&gt;((err: E) =&gt; [undefined, err]);
 
-const [res1, err1] = await asyncTo(new Promise(resolve =&gt; resolve('success'))) // res1: 'success', err1: null
+const [res1, err1] = await asyncTo(new Promise(resolve =&gt; resolve('success'))); // res1: 'success', err1: null
 
-const [res2, err2] = await asyncTo(new Promise((_, reject) =&gt; reject('error'))) // res2: undefined, err2: 'error'
+const [res2, err2] = await asyncTo(new Promise((_, reject) =&gt; reject('error'))); // res2: undefined, err2: 'error'
 </code></pre>
 <h1 id="参考">参考</h1>
 <p>[1] <a href="https://mp.weixin.qq.com/s/mUblBpj6pmdxz9mLKEDJTw">React + TypeScript 实践</a><br>

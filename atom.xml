@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://CallanBi.github.io</id>
     <title>Callan Bi&apos;s Blog</title>
-    <updated>2022-01-24T09:22:15.333Z</updated>
+    <updated>2022-04-18T16:50:42.215Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://CallanBi.github.io"/>
     <link rel="self" href="https://CallanBi.github.io/atom.xml"/>
@@ -10,6 +10,56 @@
     <logo>https://CallanBi.github.io/images/avatar.png</logo>
     <icon>https://CallanBi.github.io/favicon.ico</icon>
     <rights>All rights reserved 2022, Callan Bi&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[TS经典类型体操：联合类型如何转为转交叉类型？需要知道三个点：分配律、逆变位置、逆变和协变]]></title>
+        <id>https://CallanBi.github.io/post/dang-ts-de-lian-he-lei-xing-he-jiao-cha-lei-xing-yu-dao-han-shu/</id>
+        <link href="https://CallanBi.github.io/post/dang-ts-de-lian-he-lei-xing-he-jiao-cha-lei-xing-yu-dao-han-shu/">
+        </link>
+        <updated>2022-03-24T03:06:00.000Z</updated>
+        <content type="html"><![CDATA[<p>来看一个经典的类型体操问题：如何实现一个 UnionToIntersection？</p>
+<p>具体地说，这个问题有三个子问题：联合类型的分配律、 逆变位置、逆变和协变。我们在递归地解决问题的过程中，递归地给出解答。</p>
+<pre><code>// test case
+type U = UnionToIntersection&lt;{ a: string } | { b: number }&gt; // type U = {  a: string } &amp; { b: number };
+</code></pre>
+<p>注意，输入不能是原始类型的联合类型，因为原始类型的交叉类型是 <code>never</code>。</p>
+<p>这个时候，就要用到这两个类型与函数的奇妙碰撞了。</p>
+<h2 id="联合类型的分配律">联合类型的分配律</h2>
+<p>我们知道联合类型遵从分配律。当我们将一个联合类型如 <code>{ a: string } | { b: number }</code> 传入一个类型 <code>type T&lt;U&gt;</code> 时，<code>type T&lt;{ a: string } | { b: number }&gt;</code> 实际上等价于 <code>type T&lt;{ a: string }&gt; | type T&lt;{ b: number }&gt;</code>。</p>
+<p>下面这个是<a href="https://www.typescriptlang.org/docs/handbook/2/conditional-types.html">官网</a>的解释。</p>
+<figure data-type="image" tabindex="1"><img src="https://CallanBi.github.io/post-images/1650297261036.png" alt="" loading="lazy"></figure>
+<p>那如果我们把 <code>type T&lt;U&gt;</code> 写成这个样子：</p>
+<pre><code>type ToUnionOfFunction&lt;T&gt; = T extends any ? (x: T) =&gt; any : never;
+</code></pre>
+<p>即，我们构造一个将传入的联合类型作为参数的函数。我们将上面的 test case 传入这个类型：</p>
+<pre><code>type Functions = ToUnionOfFunction&lt;{ a: string } | { b: number }&gt; 
+</code></pre>
+<p>这个时候，结果就变成了：</p>
+<pre><code>type Functions =
+    | ((x: { a: string }) =&gt; any)
+    | ((x: { b: number }) =&gt; any)
+</code></pre>
+<p>由于分配律，我们得到了两个参数不同的函数的联合类型。</p>
+<p>这个时候我们怎么得到交叉类型呢？</p>
+<p>锵锵！看下面！</p>
+<pre><code>type UnionToIntersection&lt;T&gt; =  ToUnionOfFunction&lt;T&gt; extends (x: infer P) =&gt; any ? P : never;
+</code></pre>
+<p>我们将<code>ToUnionOfFunction&lt;T&gt;</code> 解开后便是 <code>(( (x: { a: string }) =&gt; any) | ( (x: { b: number }) =&gt; any) ) extends (x: infer P) =&gt; any ? P : never</code> 。</p>
+<p>在 TypeScript 的<a href="https://github.com/Microsoft/TypeScript/pull/21496">这个 PR </a>中有一句话：</p>
+<figure data-type="image" tabindex="2"><img src="https://CallanBi.github.io/post-images/1650299061909.png" alt="" loading="lazy"></figure>
+<blockquote>
+<p>multiple candidates for the same type variable in contra-variant positions causes an intersection type to be inferred.</p>
+</blockquote>
+<p>即：在<strong>逆变位置</strong>的同一类型变量中的多个候选会被推断成交叉类型。</p>
+<p>基于这个性质，我们的<code>UnionToIntersection&lt;T&gt;</code>便满足测试用例了。</p>
+<h2 id="逆变位置到底是个什么">逆变位置到底是个什么？</h2>
+<p>首先记住一句话：函数参数是逆变的，而对象属性是协变的。</p>
+<p>变量处于逆变位置就是<strong>这个变量是一个函数的参数</strong>。</p>
+<h2 id="到底什么是逆变和协变">到底什么是逆变和协变？！</h2>
+<p>在<a href="https://jkchao.github.io/typescript-book-chinese/tips/covarianceAndContravariance.html#%E4%B8%80%E4%B8%AA%E6%9C%89%E8%B6%A3%E7%9A%84%E9%97%AE%E9%A2%98">《深入理解 TypeScript》</a> 的 逆变和协变 一节中有详细介绍。</p>
+<p>《深入理解 TypeScript》是本好书呀，建议多看看。</p>
+<p>OK，这三个问题解决完之后，我们对这个经典问题也算是搞懂了。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[一个前端的 Golang 语法层面入门感悟（持续补充）]]></title>
         <id>https://CallanBi.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu/</id>
@@ -571,11 +621,11 @@ export default React.memo(Component1); // 建议有context 的地方最好 memo 
 <p><code>Store.ts</code> 和 <code>WithProvider.tsx</code> 可以配置成 vscode snippets，需要用到时直接使用。</p>
 <h2 id="15-类-golang-风格的异步接口最佳实践">15. 类 Golang 风格的异步接口最佳实践</h2>
 <pre><code class="language-javascript">const asyncTo = &lt;T, E = Error&gt;(p: Promise&lt;T&gt;): Promise&lt;[T, null] | [undefined, E]&gt; =&gt;
-  p.then&lt;[T, null]&gt;((data: T) =&gt; [data, null]).catch&lt;[undefined, E]&gt;((err: E) =&gt; [undefined, err])
+  p.then&lt;[T, null]&gt;((data: T) =&gt; [data, null]).catch&lt;[undefined, E]&gt;((err: E) =&gt; [undefined, err]);
 
-const [res1, err1] = await asyncTo(new Promise(resolve =&gt; resolve('success'))) // res1: 'success', err1: null
+const [res1, err1] = await asyncTo(new Promise(resolve =&gt; resolve('success'))); // res1: 'success', err1: null
 
-const [res2, err2] = await asyncTo(new Promise((_, reject) =&gt; reject('error'))) // res2: undefined, err2: 'error'
+const [res2, err2] = await asyncTo(new Promise((_, reject) =&gt; reject('error'))); // res2: undefined, err2: 'error'
 </code></pre>
 <h1 id="参考">参考</h1>
 <p>[1] <a href="https://mp.weixin.qq.com/s/mUblBpj6pmdxz9mLKEDJTw">React + TypeScript 实践</a><br>
