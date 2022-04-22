@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://CallanBi.github.io</id>
     <title>Callan Bi&apos;s Blog</title>
-    <updated>2022-04-22T04:25:24.551Z</updated>
+    <updated>2022-04-22T08:49:44.635Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://CallanBi.github.io"/>
     <link rel="self" href="https://CallanBi.github.io/atom.xml"/>
@@ -42,7 +42,7 @@ Infinity * 0 // NaN
 <h1 id="加减运算符发生的强制类型转换到底是返回什么">加减运算符发生的强制类型转换到底是返回什么？</h1>
 <p>是返回对两边的 <code>toString()</code> ? 又或者是 <code>Number()</code> ?</p>
 <p>看下 <a href="https://262.ecma-international.org/5.1/#sec-11.6">ECMAScript Language Specification</a> 这段话：<br>
-<img src="https://CallanBi.github.io/post-images/1650554689478.png" alt="" loading="lazy"></p>
+<img src="https://CallanBi.github.io/post-images/1650617354502.png" alt="" loading="lazy"></p>
 <p>总结一下。</p>
 <h2 id="对于-运算符">对于<code>+</code> 运算符</h2>
 <ol>
