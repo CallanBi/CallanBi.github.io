@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://CallanBi.github.io</id>
     <title>Callan Bi&apos;s Blog</title>
-    <updated>2022-04-23T06:56:21.733Z</updated>
+    <updated>2022-04-26T07:12:26.916Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://CallanBi.github.io"/>
     <link rel="self" href="https://CallanBi.github.io/atom.xml"/>
@@ -244,6 +244,58 @@ _true; // -&gt; 2
         </link>
         <updated>2022-04-21T14:52:23.000Z</updated>
         <content type="html"><![CDATA[<p>今天面试官问了我这个问题，写得磕磕绊绊的，最后也没写出来，复盘一下。</p>
+<p>Promise 的本质：回调函数，被封装在内部。</p>
+<p>参考<a href="https://zhuanlan.zhihu.com/p/58428287">这篇文章</a>，我先实现了一个基础的 Promise：</p>
+<pre><code class="language-javascript">class MyPromise {
+    static cbs: Array&lt;(val: any) =&gt; any&gt; = [];
+
+    static errorCbs: Array&lt;(err: any) =&gt; any&gt; = [];
+
+    status: 'pending' | 'fulfilled' | 'rejected' = 'pending';
+
+    data: any = undefined;
+
+    constructor(callback: (resolve: MyPromise['resolve'], reject: MyPromise['reject']) =&gt; any) {
+        try {
+            callback(this.resolve, this.reject);
+        } catch (e) {
+            this.reject(e);
+        }
+    }
+
+    resolve = (val: any) =&gt; {
+        this.status = 'fulfilled';
+
+        setTimeout(() =&gt; {
+            // 加上 setTimeout 是为了确保 cbs 长度大于0
+            MyPromise.cbs.forEach(f =&gt; f(val));
+        });
+
+        this.data = val;
+    }
+
+    reject = (reason: any) =&gt; {
+        this.status = 'rejected';
+        setTimeout(() =&gt; {
+            MyPromise.errorCbs.forEach(f =&gt; f(reason));
+        })
+
+        this.data = reason;
+    }
+
+    then = (fun: (data: any) =&gt; any) =&gt; {
+        MyPromise.cbs.push(fun);
+        return this;
+    }
+
+    catch = (onRejected: (err: any) =&gt; any) =&gt; {
+        setTimeout(() =&gt; {
+            MyPromise.errorCbs.push(onRejected);
+        });
+        return this;
+    }
+}
+</code></pre>
 ]]></content>
     </entry>
     <entry>
