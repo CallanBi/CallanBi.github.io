@@ -1,0 +1,384 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>一个前端的 Golang 语法层面入门感悟（持续补充） | Callan Bi&#39;s Blog</title>
+<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1662275411308">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://CallanBi.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="一个前端的 Golang 语法层面入门感悟（持续补充） | Callan Bi&#39;s Blog - Atom Feed" href="https://CallanBi.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="写本文主要想对比下 Golang 和通常前端所用的日常开发语言，如 JS 和 TS 之间的异同，以便更好地切换开发时的心智模式。
+关于变量作用域
+Golang 的作用域好像与 ES6 的 let 变量作用域相同。
+The Way To Go..." />
+    <meta name="keywords" content="golang" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://CallanBi.github.io">
+  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1662275411308" alt="">
+  </a>
+  <h1 class="site-title">
+    Callan Bi&#39;s Blog
+  </h1>
+  <p class="site-description">
+    Callan Bi 的博客，记录技术成长和日常
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/CallanBi" target="_blank">
+          <i class="ri-github-line"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              一个前端的 Golang 语法层面入门感悟（持续补充）
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-10-23
+              </span>
+              <span>
+                4 min read
+              </span>
+              
+                <a href="https://CallanBi.github.io/tag/7_pByPxpH/" class="post-tag">
+                  # golang
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>写本文主要想对比下 Golang 和通常前端所用的日常开发语言，如 JS 和 TS 之间的异同，以便更好地切换开发时的心智模式。</p>
+<h1 id="关于变量作用域">关于变量作用域</h1>
+<p>Golang 的作用域好像与 ES6 的 let 变量作用域相同。</p>
+<p><strong>The Way To Go 中的例子</strong></p>
+<ol>
+<li>输出 GOG</li>
+</ol>
+<pre><code class="language-python">package main
+
+var a = &quot;G&quot;
+
+func main() {
+   n()
+   m()
+   n()
+}
+
+func n() { print(a) }
+
+func m() {
+   a := &quot;O&quot;
+   print(a)
+}
+</code></pre>
+<ol start="2">
+<li>输出 GOO</li>
+</ol>
+<pre><code class="language-python">package main
+
+var a = &quot;G&quot;
+
+func main() {
+   n()
+   m()
+   n()
+}
+
+func n() {
+   print(a)
+}
+
+func m() {
+   a = &quot;O&quot;
+   print(a)
+}
+</code></pre>
+<ol start="3">
+<li>输出GOG</li>
+</ol>
+<pre><code class="language-python">package main
+
+var a string
+
+func main() {
+   a = &quot;G&quot;
+   print(a)
+   f1()
+}
+
+func f1() {
+   a := &quot;O&quot;
+   print(a)
+   f2()
+}
+
+func f2() {
+   print(a)
+}
+</code></pre>
+<p>注意 <code>f2()</code> 中的 <code>print(a)</code>，读的是全局变量<code>a</code>，而不是函数执行域中<code>f1()</code>的<code>a</code>。</p>
+<h1 id="关于包导出">关于包导出</h1>
+<p>Golang 通常一个目录为一个包（package）。不像 JS 中常见的包管理机制（如 ESM等），Golang 包内成员不需要用<code>export</code>等关键字显式声明导出。</p>
+<p>导出的成员函数应<strong>以大写字母开头</strong>，否则不可以导出（Goland IDE 如果引用了包内小写的函数，会有报错提示，点击导出后 IDE 会将函数开头改成大写字母）。</p>
+<h1 id="三-变参函数">三、变参函数</h1>
+<p>Golang 的变参函数类似于解构赋值，但有略微不同。如 <strong>The Way To Go</strong> 中的例子。</p>
+<ol>
+<li>当变参函数想要拿到剩余变长参数所组成的切片，在表示切片类型时，类似解构赋值的三点运算写在前面：</li>
+</ol>
+<pre><code class="language-python">func Greeting(prefix string, who ...string) // ...string 表示 []string 这一切片类型
+Greeting(&quot;hello:&quot;, &quot;Joe&quot;, &quot;Anna&quot;, &quot;Eileen&quot;)
+</code></pre>
+<ol start="2">
+<li>当将切片传递给变参函数时，类似解构赋值的三点运算写在切片变量后面：</li>
+</ol>
+<pre><code class="language-python">package main
+
+import &quot;fmt&quot;
+
+func main() {
+    x := min(1, 3, 2, 0)
+    fmt.Printf(&quot;The minimum is: %d\n&quot;, x)
+    slice := []int{7,9,3,5,1}
+    x = min(slice...) // 写在后面
+    fmt.Printf(&quot;The minimum in the slice is: %d&quot;, x)
+}
+
+func min(s ...int) int {
+    if len(s) == 0 {
+        return 0
+    }
+    min := s[0]
+    for _, v := range s {
+        if v &lt; min {
+            min = v
+        }
+    }
+    return min
+}
+</code></pre>
+<h1 id="关于结构体的类型">关于结构体的类型</h1>
+<p>我们知道在 TypeScript 中，对象的类型只要形状一致，即认为该对象属于某一类型：</p>
+<pre><code class="language-javascript">type Options = {
+  par1: string;
+  par2: number;
+  par3: any;
+}
+
+const instance1: Options = {
+  par1: &quot;aaa&quot;,
+  par2: 123,
+  par3: &quot;bbb&quot;,
+}
+
+const instance2 = {
+  par1: &quot;aaa&quot;,
+  par2: 123,
+  par3: &quot;bbb&quot;,
+}
+
+const instance3: Options = instance2; // 无报错
+</code></pre>
+<p>但在 Golang 中并非如此。例子在下面：</p>
+<p><strong>varargs.go</strong></p>
+<pre><code class="language-python">package varargs
+
+import (
+  &quot;fmt&quot;
+)
+
+type Options struct {
+  Par1 string
+  Par2 int64
+  Par3 interface{}
+}
+
+func PrintVarArgsUsingStruct(para *Options) {
+  fmt.Print(&quot;\n\nPrintVarArgsUsingStruct: &quot;, *para)
+}
+</code></pre>
+<p><strong>sturcttest.go</strong></p>
+<pre><code class="language-python">package structtest
+
+import (
+  &quot;fmt&quot;
+
+  &quot;goSimplePractice/varargs&quot;
+)
+
+func Test() {
+  fmt.Print(&quot;\n\nstructTest: &quot;)
+
+  varMadeFromType := &amp;varargs.Options{Par1: &quot;123&quot;, Par2: 19980416, Par3: &quot;testTestTest&quot;}
+  varMadeFromStruct := &amp;struct {
+    Par1 string
+    Par2 int64
+    Par3 interface{}
+  }{Par1: &quot;123&quot;, Par2: 19980416, Par3: &quot;testTestTest&quot;}
+
+  varargs.PrintVarArgsUsingStruct(varMadeFromType)
+
+  // varargs.PrintVarArgsUsingStruct(varMadeFromStruct)
+  // Output: Cannot use 'varMadeFromStruct' (type *struct {...}) as the type *Options
+
+  varargs.PrintVarArgsUsingStruct((*varargs.Options)(varMadeFromStruct)) // ✅
+}
+</code></pre>
+<p>事实上，在 golang 等强类型语言中无形状这一说法，因为 golang 不是动态类型语言，无需为兼容弱类型的对象做妥协。但有完全相同「形状」，即完全相同的字段（名字、个数和类型）的结构体可以互相转换。</p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#%E5%85%B3%E4%BA%8E%E5%8F%98%E9%87%8F%E4%BD%9C%E7%94%A8%E5%9F%9F">关于变量作用域</a></li>
+<li><a href="#%E5%85%B3%E4%BA%8E%E5%8C%85%E5%AF%BC%E5%87%BA">关于包导出</a></li>
+<li><a href="#%E4%B8%89-%E5%8F%98%E5%8F%82%E5%87%BD%E6%95%B0">三、变参函数</a></li>
+<li><a href="#%E5%85%B3%E4%BA%8E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E7%B1%BB%E5%9E%8B">关于结构体的类型</a></li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://CallanBi.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/">
+              <h3 class="post-title">
+                TypeScript + React 个人最佳实践(WIP持续补充中)
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'dda136bbf45377c648de',
+    clientSecret: 'f43305dcc30bf8a19537657df304ae5532b31dda',
+    repo: 'my-blog-storage',
+    owner: 'CallanBi',
+    admin: ['CallanBi'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  
+  <a class="rss" href="https://CallanBi.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,456 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JavaScript is weird! 记一些奇奇怪怪的表达式打牢基础 | Callan Bi&#39;s Blog</title>
+<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1662275411308">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://CallanBi.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="JavaScript is weird! 记一些奇奇怪怪的表达式打牢基础 | Callan Bi&#39;s Blog - Atom Feed" href="https://CallanBi.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="首先在 https://jsisweird.com/ 这个网站看看究竟能对多少题。
+记录一下我所不清楚的地方。
+数字、无穷与0相互运算会发生什么？
+2 / 0 // Infinity
+0 / 0 // NaN
+-1 / 0 //-Infin..." />
+    <meta name="keywords" content="js 基础" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://CallanBi.github.io">
+  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1662275411308" alt="">
+  </a>
+  <h1 class="site-title">
+    Callan Bi&#39;s Blog
+  </h1>
+  <p class="site-description">
+    Callan Bi 的博客，记录技术成长和日常
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/CallanBi" target="_blank">
+          <i class="ri-github-line"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              JavaScript is weird! 记一些奇奇怪怪的表达式打牢基础
+            </h2>
+            <div class="post-info">
+              <span>
+                2022-04-21
+              </span>
+              <span>
+                8 min read
+              </span>
+              
+                <a href="https://CallanBi.github.io/tag/GEaQI2HdR/" class="post-tag">
+                  # js 基础
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>首先在 <a href="https://jsisweird.com/">https://jsisweird.com/</a> 这个网站看看究竟能对多少题。</p>
+<p>记录一下我所不清楚的地方。</p>
+<h1 id="数字-无穷与0相互运算会发生什么">数字、无穷与0相互运算会发生什么？</h1>
+<pre><code class="language-javascript">2 / 0 // Infinity
+0 / 0 // NaN
+-1 / 0 //-Infinity
+Infinity * 0 // NaN
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://CallanBi.github.io/post-images/1650600972687.png" alt="" loading="lazy"></figure>
+<h1 id="原始类型基本类型">原始类型（基本类型）</h1>
+<p>基本类型（基本数值、基本数据类型）是一种既非对象也无方法的数据。在 JavaScript 中，共有7种基本类型：string，number，bigint，boolean，<strong>null</strong>，undefined，symbol (ECMAScript 2016新增)。</p>
+<p>注意：<br>
+虽然 <code>typeof null === 'object'</code> ，但 <code>null</code> 也是原始类型。<br>
+<code>typeof NaN === 'number'</code>，NaN 是原始类型。</p>
+<blockquote>
+<p>The <a href="https://262.ecma-international.org/5.1/#sec-4.3.23">ECMAScript Language Specification</a> explains NaN as a number value that is a IEEE 754 “Not-a-Number” value. It might seem strange, but this is a common computer science principle.</p>
+<p>There are some odd issues surrounding NaN in JavaScript, however. For instance, this is one of the very few instances where the Object.is function disagrees with triple equal.</p>
+<p><code>NaN === NaN; // -&gt; false </code><br>
+<code>Object.is(NaN, NaN); // -&gt; true</code></p>
+<p>Another such rare instance can be seen in question 24.</p>
+<p>This legacy issue was later remedied with the isNaN function.</p>
+<p><code>isNaN(NaN); // -&gt; true</code></p>
+</blockquote>
+<h1 id="加减运算符发生的强制类型转换到底是返回什么">加减运算符发生的强制类型转换到底是返回什么？</h1>
+<p>是返回对两边的 <code>toString()</code> ? 又或者是 <code>Number()</code> ?</p>
+<p>看下 <a href="https://262.ecma-international.org/5.1/#sec-11.6">ECMAScript Language Specification</a> 这段话：<br>
+<img src="https://CallanBi.github.io/post-images/1650617354502.png" alt="" loading="lazy"></p>
+<p>总结一下。</p>
+<h2 id="对于-运算符">对于<code>+</code> 运算符</h2>
+<ol>
+<li>当一边为 string，被识别为字符串拼接，会优先将另一边转换为 string 类型进行拼接。</li>
+<li>当一边为<strong>引用类型</strong>，则两边都转化成字符串进行拼接。</li>
+<li>当一边为 number，另一边为<strong>原始类型</strong>，则另一边转换为 number 。</li>
+<li>两边都为非 number 且 非 string 的原始类型，先尝试将一边强制转化为 number 。</li>
+</ol>
+<pre><code class="language-javascript">123 + '123' // 123123   （规则1）
+123 + null  // 123    （规则3）
+123 + true // 124    （规则3）
+123 + {}  // 123[object Object]    （规则2）
+</code></pre>
+<h2 id="对于-运算符-2">对于 <code>- ，* ，/</code> 运算符</h2>
+<p>在对各种非 number 类型运用数学运算符(- * /)时，会先将非 number 类型转换为 number。</p>
+<pre><code class="language-javascript">1 - true // 0， 首先把 true 转换为数字 1， 然后执行 1 - 1
+1 - null // 1,  首先把 null 转换为数字 0， 然后执行 1 - 0
+1 * undefined //  NaN, undefined 转换为数字是 NaN
+2 * ['5'] //  10， ['5']首先会变成 '5' -- 拆箱操作, 然后再变成数字 5
+</code></pre>
+<h1 id="truthy-值">truthy 值</h1>
+<p>看下<a href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy">这个</a>：</p>
+<blockquote>
+<p>In JavaScript, a truthy value is a value that is considered true when encountered in a Boolean context. All values are truthy unless they are defined as falsy. That is, all values are truthy except <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>&quot;&quot;</code>, <code>null</code>, <code>undefined</code>, and <code>NaN</code>.</p>
+</blockquote>
+<p>下面这些都是 truthy 值：</p>
+<pre><code class="language-javascript">if (true)
+if ({})
+if ([])
+if (42)
+if (&quot;0&quot;)
+if (&quot;false&quot;)
+if (new Date())
+if (-42)
+if (12n)
+if (3.14)
+if (-3.14)
+if (Infinity)
+if (-Infinity)
+</code></pre>
+<p>如果操作符左边的运算对象是 truthy 值，则 <code>&amp;&amp;</code> 操作符返回操作符右边的运算对象：</p>
+<pre><code class="language-javascript">true &amp;&amp; &quot;dog&quot;
+// returns &quot;dog&quot;
+
+[] &amp;&amp; &quot;dog&quot;
+// returns &quot;dog&quot;
+</code></pre>
+<h1 id="操作符的规则"><code>==</code> 操作符的规则</h1>
+<p>看下 <a href="https://262.ecma-international.org/11.0/#sec-abstract-equality-comparison">ecma262 第11版中关于抽象等式比较（Abstract Equality Comparison）的介绍</a>。</p>
+<p>我写了下了每一条规则对应的场景：</p>
+<pre><code class="language-javascript">/* 类型相同，的执行全等运算判断 **/
+1 == 2 // false
+1 == 1 // true
+
+/* 有一边是 undefined 且另一边是 null， 返回 true **/
+undefined == null // true
+null == undefined // true
+
+/* 一边是string 一边是 number，先将 string 转为 number **/
+1 == '1' // true
+1 == '1a' // false, '1a' 调用 Number() 会转化为 NaN
+
+/* 一边是string 一边是 bigint，先将 string 转为 bigint **/
+1n == '1' // true
+1n == '1a' // false, '1a' 调用 Number() 会转化为 NaN
+
+/* 只要一边是boolean，先将 boolean 强制转为 number **/
+1 == true // true
+false == 1 // 
+
+/* 一边是 string, number, symbol 或 bigint，另一边是 Object 引用类型，先将 Object 转为原始值 **/
+'1,2,[object Object]' == ['1', 2, {}] // true
+
+/* 一边是  bigint, 另一边是 number **/
+/* 如果有一边是 NaN，+Infinity, -Infinity，返回 false，否则比较数学上的值的大小 **/
++Infinity == 999999999999999999999999999n // false
+1 == 1n // true
+</code></pre>
+<p>发现：</p>
+<ol>
+<li>number 除了和引用类型比较外，和其他类型比较时都是其他类型先转为 number。</li>
+<li><code>NaN</code> 和其他任何类型比较永远返回 <code>false</code>（包括和它自己）。</li>
+<li>除了 <code> undefined == null</code> 外，这两个值和其他任何类型比较都为 <code>false</code>。</li>
+<li>只要一边是boolean，先将 boolean 强制转为 number</li>
+<li>非 <code> boolean</code> 外的原始类型和引用类型比较，先把引用类型转为原始类型。</li>
+</ol>
+<h1 id="二进制八进制十进制十六进制和它们的相互运算">二进制，八进制，十进制，十六进制和它们的相互运算</h1>
+<p>参考：<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Numbers_and_dates">MDN Web Docs Numbers and dates</a>。</p>
+<h2 id="二进制binary">二进制（binary）</h2>
+<p>以 <code>0b</code> 或 <code>0B</code> 开头，如：</p>
+<pre><code class="language-javscript">0b01111111100000000000000000000000; // 2139095040
+</code></pre>
+<h2 id="八进制octal">八进制（octal）</h2>
+<ol>
+<li>如果前导0后面的数字在 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>0</mn><mo>∼</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">0 \sim 7</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">7</span></span></span></span> 范围内，则被解读为八进制；</li>
+</ol>
+<pre><code class="language-javascript">const n = 0755; // 493
+0888 // 888 parsed as decimal
+const a = 0o10; // ES2015: 8
+const b = 00777; // 510，即 8^0 7 + 8^1 * 7 + 8^2 * 7
+</code></pre>
+<ol start="2">
+<li>以 <code>0o</code>开头。</li>
+</ol>
+<h2 id="十六进制hexadecimal">十六进制（Hexadecimal）</h2>
+<p>以 <code>0x</code> 或 <code>0X</code> 开头。</p>
+<h2 id="以-10-为底的指数">以 10 为底的指数</h2>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span>e<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span> 或 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span>E<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span> 表示 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi><mo>×</mo><mn>1</mn><msup><mn>0</mn><mi>m</mi></msup></mrow><annotation encoding="application/x-tex">n \times 10^m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.664392em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.664392em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">m</span></span></span></span></span></span></span></span></span></span></span>。</p>
+<pre><code class="language-javascript">1E3   // 1000
+2e6   // 2000000
+0.1e2 // 10
+</code></pre>
+<h2 id="相互运算">相互运算</h2>
+<p>都先转为十进制再运算。</p>
+<h2 id="逻辑-操作符">逻辑 &amp;&amp; 操作符</h2>
+<blockquote>
+<p>The <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Logical_AND">logical AND operator</a> is usually used with Boolean values in if-statements, but it actually returns the value of one of the operands. <strong>If the first expression can be converted to true, then it returns the second. Otherwise, it returns the first.</strong></p>
+</blockquote>
+<p>只要第一个表达式为 false，就返回第一个表达式的值；如果第一个为 true，则返回第二个表达式的值。</p>
+<pre><code class="language-javascript">&quot;&quot; &amp;&amp; -0; // -&gt; &quot;&quot;
+-0 &amp;&amp; &quot;&quot;; // -&gt; -0
+5 &amp;&amp; 3; // -&gt; 3
+0 &amp;&amp; 3; // -&gt; 0
+</code></pre>
+<h1 id="练习题">练习题</h1>
+<h2 id="1">1.</h2>
+<pre><code class="language-javascript">[] == ![]
+</code></pre>
+<p>右边先转化为布尔值。由于 <code>[]</code> 是 truthy 值，所以 <code>![]</code> 是 false。</p>
+<p><code>[] == false</code>，一边为引用类型，一边为布尔类型。只要有一边是布尔，就先将布尔类型转为 number。</p>
+<p><code>[] == 0</code>, 一边为 <code>number</code> 类型（非  boolean 的原始类型），一边为引用类型。则先将引用类型转为原始类型。</p>
+<p><code>'' == 0</code>。一边为 string 类型，一边为 number 类型。则先将 string 转为 number。</p>
+<p><code>0 == 0</code>。则最后为 <code>true</code>。</p>
+<h2 id="2">2.</h2>
+<pre><code class="language-javascript">true == &quot;true&quot; 
+</code></pre>
+<p><code>1 == &quot;true&quot;</code> -&gt; <code>1 == NaN</code>，则最后为 <code>false</code>。</p>
+<h2 id="3">3.</h2>
+<pre><code class="language-javascript">010 - 03
+</code></pre>
+<pre><code>010; // -&gt; 8
+03; // -&gt; 3
+8 - 3; // -&gt; 5
+</code></pre>
+<p>所以答案为5。</p>
+<h2 id="4">4.</h2>
+<pre><code class="language-javascript">1/0 &gt; 10 ** 1000
+</code></pre>
+<blockquote>
+<p>JavaScript treats both of these values as infinite, and infinity is equal to infinity. <a href="https://en.wikipedia.org/wiki/Floating-point_arithmetic#Infinities">Learn more about infinities</a>.</p>
+</blockquote>
+<pre><code class="language-javascript">1/0; // -&gt; Infinity
+10 ** 1000; // -&gt; Infinity
+Infinity &gt; Infinity; // -&gt; false
+</code></pre>
+<p>所以答案为 false。</p>
+<h2 id="5">5.</h2>
+<pre><code class="language-javascript">true++
+</code></pre>
+<p>输出 stytaxError。</p>
+<p>只能死记下面的值了：</p>
+<pre><code class="language-javascript">true++; // -&gt; SyntaxError
+1++; // -&gt; SyntaxError
+&quot;x&quot;++; // -&gt; SyntaxError
+null++; // -&gt; SyntaxError
+undefined++; // -&gt; NaN
+$++; // -&gt; NaN
+console.log++; // -&gt; NaN
+NaN++; // -&gt; NaN
+
+let _true = true;
+_true++;
+_true; // -&gt; 2
+</code></pre>
+<h2 id="6">6.</h2>
+<pre><code class="language-javascript">undefined + false
+</code></pre>
+<blockquote>
+<p>While false can be converted to a number, undefined cannot.<br>
+<code>Number(undefined); // -&gt; NaN</code><br>
+<code>Number(false); // -&gt; 0</code><br>
+<code>NaN + 0; // -&gt; NaN</code></p>
+</blockquote>
+<h2 id="7">7.</h2>
+<pre><code class="language-javascript">&quot;&quot; &amp;&amp; -0
+</code></pre>
+<p>考察<code>&amp;&amp;</code>运算符的逻辑。<br>
+第一个表达式为 false，直接返回第一个表达式的值。<br>
+第一个表达式为 true，则返回第二个表达式的值。</p>
+<p>此题第一个表达式为 false ，则返回第一个，即 <code>&quot;&quot;</code>。</p>
+<h1 id="参考">参考</h1>
+<p><a href="https://chinese.freecodecamp.org/news/javascript-implicit-type-conversion/">JavaScript 隐式类型转换，一篇就够了！</a></p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#%E6%95%B0%E5%AD%97-%E6%97%A0%E7%A9%B7%E4%B8%8E0%E7%9B%B8%E4%BA%92%E8%BF%90%E7%AE%97%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88">数字、无穷与0相互运算会发生什么？</a></li>
+<li><a href="#%E5%8E%9F%E5%A7%8B%E7%B1%BB%E5%9E%8B%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B">原始类型（基本类型）</a></li>
+<li><a href="#%E5%8A%A0%E5%87%8F%E8%BF%90%E7%AE%97%E7%AC%A6%E5%8F%91%E7%94%9F%E7%9A%84%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%88%B0%E5%BA%95%E6%98%AF%E8%BF%94%E5%9B%9E%E4%BB%80%E4%B9%88">加减运算符发生的强制类型转换到底是返回什么？</a>
+<ul>
+<li><a href="#%E5%AF%B9%E4%BA%8E-%E8%BF%90%E7%AE%97%E7%AC%A6">对于<code>+</code> 运算符</a></li>
+<li><a href="#%E5%AF%B9%E4%BA%8E-%E8%BF%90%E7%AE%97%E7%AC%A6-2">对于 <code>- ，* ，/</code> 运算符</a></li>
+</ul>
+</li>
+<li><a href="#truthy-%E5%80%BC">truthy 值</a></li>
+<li><a href="#%E6%93%8D%E4%BD%9C%E7%AC%A6%E7%9A%84%E8%A7%84%E5%88%99"><code>==</code> 操作符的规则</a></li>
+<li><a href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%85%AB%E8%BF%9B%E5%88%B6%E5%8D%81%E8%BF%9B%E5%88%B6%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E5%92%8C%E5%AE%83%E4%BB%AC%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BF%90%E7%AE%97">二进制，八进制，十进制，十六进制和它们的相互运算</a>
+<ul>
+<li><a href="#%E4%BA%8C%E8%BF%9B%E5%88%B6binary">二进制（binary）</a></li>
+<li><a href="#%E5%85%AB%E8%BF%9B%E5%88%B6octal">八进制（octal）</a></li>
+<li><a href="#%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6hexadecimal">十六进制（Hexadecimal）</a></li>
+<li><a href="#%E4%BB%A5-10-%E4%B8%BA%E5%BA%95%E7%9A%84%E6%8C%87%E6%95%B0">以 10 为底的指数</a></li>
+<li><a href="#%E7%9B%B8%E4%BA%92%E8%BF%90%E7%AE%97">相互运算</a></li>
+<li><a href="#%E9%80%BB%E8%BE%91-%E6%93%8D%E4%BD%9C%E7%AC%A6">逻辑 &amp;&amp; 操作符</a></li>
+</ul>
+</li>
+<li><a href="#%E7%BB%83%E4%B9%A0%E9%A2%98">练习题</a>
+<ul>
+<li><a href="#1">1.</a></li>
+<li><a href="#2">2.</a></li>
+<li><a href="#3">3.</a></li>
+<li><a href="#4">4.</a></li>
+<li><a href="#5">5.</a></li>
+<li><a href="#6">6.</a></li>
+<li><a href="#7">7.</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://CallanBi.github.io/post/mian-shi-guan-shi-xian-yi-ge-zi-ji-de-promise-ba/">
+              <h3 class="post-title">
+                面试官：实现一个自己的 Promise 吧！(WIP)
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'dda136bbf45377c648de',
+    clientSecret: 'f43305dcc30bf8a19537657df304ae5532b31dda',
+    repo: 'my-blog-storage',
+    owner: 'CallanBi',
+    admin: ['CallanBi'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  
+  <a class="rss" href="https://CallanBi.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

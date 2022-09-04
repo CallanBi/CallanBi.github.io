@@ -1,0 +1,612 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TypeScript + React 个人最佳实践(WIP持续补充中) | Callan Bi&#39;s Blog</title>
+<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1662275411308">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://CallanBi.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="TypeScript + React 个人最佳实践(WIP持续补充中) | Callan Bi&#39;s Blog - Atom Feed" href="https://CallanBi.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="前置工作
+
+阅读React Doc 中 TS 部分
+阅读 TypeScript Playground 中 React 部分
+
+引入 React：永远使用命名空间导入（namespace import）
+import * as React f..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://CallanBi.github.io">
+  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1662275411308" alt="">
+  </a>
+  <h1 class="site-title">
+    Callan Bi&#39;s Blog
+  </h1>
+  <p class="site-description">
+    Callan Bi 的博客，记录技术成长和日常
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/CallanBi" target="_blank">
+          <i class="ri-github-line"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              TypeScript + React 个人最佳实践(WIP持续补充中)
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-07-04
+              </span>
+              <span>
+                11 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="前置工作">前置工作</h1>
+<ol>
+<li><a href="https://reactjs.org/docs/static-type-checking.html#typescript">阅读React Doc 中 TS 部分</a></li>
+<li><a href="https://reactjs.org/docs/static-type-checking.html#typescript">阅读 TypeScript Playground 中 React 部分</a></li>
+</ol>
+<h1 id="引入-react永远使用命名空间导入namespace-import">引入 React：永远使用命名空间导入（namespace import）</h1>
+<pre><code class="language-javascirpt">import * as React from 'react';
+import { useState } from 'react'; // 可以单独导出一遍内部项
+import * as ReactDom from 'react-dom';
+</code></pre>
+<p>不推荐 <code>import React from 'react'</code>。<a href="https://twitter.com/dan_abramov/status/1308739731551858689">👉为什么？</a><br>
+这种引入方式被称为 <code>default export</code> 。不推荐的原因是第React 仅仅是作为一个命名空间存在的，我们并不会像使用一个值一样来使用 React。从 React 16.13.0 开始，React 的导出方式也已经更正为 <code>export {xxx, ...} </code>的形式了(<a href="https://github.com/facebook/react/commit/60016c448bb7d19fc989acd05dda5aca2e124381#diff-a9c08afc9ba1304a73e4235b3016b97c">commit</a>)。之所以<code>default export</code>还可以使用，是因为目前 React 的构建产物是 Commonjs 规范的，webpack 等构建工具做了兼容。</p>
+<h1 id="组件开发">组件开发</h1>
+<h2 id="1-尽量使用function-component声明即-reactfc">1. 尽量使用Function Component声明，即 React.FC：</h2>
+<pre><code class="language-javascript">export interface Props {
+  /** The user's name */
+  name: string;
+  /** Should the name be rendered in bold */
+  priority?: boolean
+}
+
+const PrintName: React.FC&lt;Props&gt; = (props) =&gt; {
+  return (
+    &lt;div&gt;
+      &lt;p style={{ fontWeight: props.priority ? &quot;bold&quot; : &quot;normal&quot; }}&gt;{props.name}&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}
+</code></pre>
+<p>我一般在开发时使用 vscode snippets 快速生成：</p>
+<pre><code class="language-json">&quot;Functional, Folder Name&quot;: {
+    &quot;prefix&quot;: &quot;ff&quot;,
+    &quot;body&quot;: [
+      &quot;import * as React from 'react';&quot;,
+      &quot;&quot;,
+      &quot;const { useRef, useState, useEffect, useMemo } = React;&quot;,
+      &quot;&quot;,
+      &quot;&quot;,
+      &quot;interface ${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}Props {&quot;,
+      &quot;&quot;,
+      &quot;}&quot;,
+      &quot;&quot;,
+			&quot;const defaultProps: ${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}Props = {};&quot;,
+			&quot;&quot;,
+      &quot;const ${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}: React.FC&lt;${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}Props&gt; = (props: React.PropsWithChildren&lt;${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}Props&gt; = defaultProps) =&gt; {&quot;,
+      &quot;  const { } = props;&quot;,
+      &quot;&quot;,
+      &quot;  return (&quot;,
+      &quot;&quot;,
+      &quot;  );&quot;,
+      &quot;};&quot;,
+      &quot;&quot;,
+      &quot;export default ${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/};&quot;,
+      &quot;&quot;
+    ],
+    &quot;description&quot;: &quot;Generate a functional component template&quot;
+  },
+</code></pre>
+<h1 id="hook-相关">Hook 相关</h1>
+<p>推荐安装vscode 插件：<a href="https://marketplace.visualstudio.com/items?itemName=AlDuncanson.react-hooks-snippets">React Hooks Snippets</a> 快速写 hook，提高开发效率。</p>
+<h2 id="2-usestatet-当状态初始值为空时推荐写出完整泛型否则可以自动推断类型">2. useState<T>： 当状态初始值为空时，推荐写出完整泛型，否则可以自动推断类型。</h2>
+<p>原因：一些状态初始值为空时，需要显示地声明类型：</p>
+<pre><code class="language-javascript">const [user, setUser] = React.useState&lt;User | null&gt;(null)
+</code></pre>
+<p>注意：如果初始值为 undefined，可不用在泛型中加上 undefined。</p>
+<h2 id="3-usememo-和-usecallback-会隐式推断类型推荐不传泛型">3. useMemo() 和 useCallback() 会隐式推断类型，推荐不传泛型</h2>
+<p>注：不要经常用useCallback，因为也会增加开销。仅当：</p>
+<ul>
+<li>包装在 <code>React.memo()</code>（或 shouldComponentUpdate ）中的组件接受回调 prop;</li>
+<li>当函数用作其他 hooks 的依赖项时 <code>useEffect(...，[callback])</code>。</li>
+</ul>
+<h2 id="4-自定义hook如果返回为数组需要手动添加-const-断言">4. 自定义hook如果返回为数组，需要手动添加 const 断言：</h2>
+<pre><code class="language-javascript">function useLoading() {
+  const [isLoading, setLoading] = React.useState(false);
+  const load = (aPromise: Promise&lt;any&gt;) =&gt; {
+    setLoading(true)
+    return aPromise.then(() =&gt; setLoading(false));
+  }
+  // 实际需要: [boolean, typeof load] 类型
+  // 而不是自动推导的：(boolean | typeof load)[]
+  return [isLoading, load] as const;
+}
+</code></pre>
+<p>或者可以直接定义返回类型：</p>
+<pre><code class="language-javascript">export function useLoading(): [
+  boolean,
+  (aPromise: Promise&lt;any&gt;) =&gt; Promise&lt;any&gt;
+] {
+  const [isLoading, setState] = React.useState(false)
+  const load = (aPromise: Promise&lt;any&gt;) =&gt; {
+    setState(true)
+    return aPromise.then(() =&gt; setState(false))
+  }
+  return [isLoading, load]
+}
+</code></pre>
+<h1 id="其他">其他</h1>
+<h2 id="5-使用默认参数值代替默认属性">5. 使用默认参数值代替默认属性</h2>
+<pre><code class="language-javascript">interface GreetProps { age?: number }
+const defaultProps: GreetProps = { age: 21 };
+const Greet = (props: GreetProps = defaultProps) =&gt; {
+  /* ... */
+}
+</code></pre>
+<p>原因：Function Component 的 defaultProps <a href="https://twitter.com/hswolff/status/1133759319571345408">最终会被废弃</a>，不推荐使用。<br>
+如果仍要使用defaultProps，推荐如下方式：</p>
+<pre><code class="language-javascript">interface IProps {
+  name: string
+}
+const defaultProps = {
+  age: 25,
+};
+
+// 类型定义
+type GreetProps = IProps &amp; typeof defaultProps;
+const Greet = (props: GreetProps) =&gt; &lt;div&gt;&lt;/div&gt;
+Greet.defaultProps = defaultProps;
+
+// 使用
+const TestComponent = (props: React.ComponentProps&lt;typeof Greet&gt;) =&gt; {
+  return &lt;h1 /&gt;
+}
+const el = &lt;TestComponent name=&quot;foo&quot; /&gt;
+</code></pre>
+<h2 id="6-建议使用-interface-定义组件-propsts-官方推荐做法使用-type-也可不强制">6. 建议使用 Interface 定义组件 props（TS 官方推荐做法），使用 type 也可，不强制</h2>
+<p>type 和 interface 的区别：type 类型不能二次编辑，而 interface 可以随时扩展。</p>
+<h2 id="7-使用-componentprops-获取未被导出的组件参数类型使用-returntype-获取返回值类型">7. 使用 ComponentProps 获取未被导出的组件参数类型，使用 ReturnType 获取返回值类型</h2>
+<p>获取组件参数类型：</p>
+<pre><code class="language-javascript">// 获取参数类型
+import { Button } from 'library' // 但是未导出props type
+type ButtonProps = React.ComponentProps&lt;typeof Button&gt; // 获取props
+type AlertButtonProps = Omit&lt;ButtonProps, 'onClick'&gt; // 去除onClick
+const AlertButton: React.FC&lt;AlertButtonProps&gt; = props =&gt; (
+  &lt;Button onClick={() =&gt; alert('hello')} {...props} /&gt;
+)
+</code></pre>
+<p>获取返回值类型：</p>
+<pre><code class="language-javascript">// 获取返回值类型
+function foo() {
+  return { baz: 1 }
+}
+type FooReturn = ReturnType&lt;typeof foo&gt; // { baz: number }
+</code></pre>
+<h2 id="8-对-type-或-interface-进行注释时尽量使用-以便获得更好的类型提示">8. 对 type 或 interface 进行注释时尽量使用 /** */，以便获得更好的类型提示</h2>
+<pre><code class="language-javascript">/* ✅ */
+/**
+ * @param a 注释1
+ * @param b 注释2
+ */
+type Test = {
+  a: string;
+  b: number;
+};
+const testObj: Test = {
+  a: '123',
+  b: 234,
+};
+</code></pre>
+<p>当 hover 到 <code>Test</code> 时类型提示更为友好：<br>
+<img src="https://CallanBi.github.io/post-images/1625414942775.png" alt="" loading="lazy"></p>
+<h2 id="9-组件-props-ts-类型规范">9. 组件 Props ts 类型规范</h2>
+<pre><code class="language-javascript">type AppProps = {
+  /** string */
+  message: string;
+  /** number */
+  count: number;
+  /** boolean */
+  disabled: boolean;
+  /** 基本类型数组 */
+  names: string[];
+  /** 字符串字面量 */
+  status: 'waiting' | 'success';
+  /** 对象：列出对象全部属性 */
+  obj3: {
+    id: string;
+    title: string;
+  };
+  /** item 为对象的数组 */
+  objArr: {
+    id: string;
+    title: string;
+  }[];
+  /** 字典*/
+  dict: Record&lt;string, MyTypeHere&gt;;
+  /** 任意完全不会调用的函数 */
+  onSomething: Function;
+  /** 没有参数&amp;返回值的函数 */
+  onClick: () =&gt; void;
+  /** 携带参数的函数 */
+  onChange: (id: number) =&gt; void;
+  /** 携带点击事件的函数, 不要再用 e: any 了 */
+  onClick(e: React.MouseEvent&lt;HTMLButtonElement&gt;): void;
+  /** 可选的属性 */
+  optional?: OptionalType;
+  children: React.ReactNode; // 最佳，支持所有类型(JSX.Element, JSX.Element[], string)
+  renderChildren: (name: string) =&gt; React.ReactNode;
+  style?: React.CSSProperties;
+  onChange?: React.FormEventHandler&lt;HTMLInputElement&gt;; // 表单事件
+};
+</code></pre>
+<h2 id="10-组件中-event-处理">10. 组件中 event 处理</h2>
+<p>常见的Eventl类型：</p>
+<pre><code class="language-javascript">React.SyntheticEvent&lt;T = Element&gt;
+React.ClipboardEvent&lt;T = Element&gt;
+React.DragEvent&lt;T = Element&gt;
+React.FocusEvent&lt;T = Element&gt;
+React.FormEvent&lt;T = Element&gt;
+React.ChangeEvent&lt;T = Element&gt;
+React.KeyboardEvent&lt;T = Element&gt;
+React.MouseEvent&lt;T = Element&gt;
+React.TouchEvent&lt;T = Element&gt;
+React.PointerEvent&lt;T = Element&gt;
+React.UIEvent&lt;T = Element&gt;
+React.WheelEvent&lt;T = Element&gt;
+React.AnimationEvent&lt;T = Element&gt;
+React.TransitionEvent&lt;T = Element&gt;
+</code></pre>
+<p>定义事件回调函数：</p>
+<pre><code class="language-javascript">type changeFn = (e: React.FormEvent&lt;HTMLInputElement&gt;) =&gt; void;
+</code></pre>
+<p>如果不太关心事件的类型，可以直接使用 React.SyntheticEvent，如果目标表单有想要访问的自定义命名输入，可以使用类型扩展:</p>
+<pre><code class="language-javascript">const App: React.FC = () =&gt; {
+  const onSubmit = (e: React.SyntheticEvent) =&gt; {
+    e.preventDefault();
+    const target = e.target as typeof e.target &amp; {
+      password: { value: string; };
+    }; // 类型扩展
+    const password = target.password.value;
+  };
+  return (
+    &lt;form onSubmit={onSubmit}&gt;
+      &lt;div&gt;
+        &lt;label&gt;
+          Password:
+          &lt;input type=&quot;password&quot; name=&quot;password&quot; /&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;input type=&quot;submit&quot; value=&quot;Log in&quot; /&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  );
+};
+</code></pre>
+<h2 id="11-尽量使用-optional-channing">11. 尽量使用 optional channing</h2>
+<h2 id="12-尽量使用-reactcomponentpropstypeof-component-减少非必要props导出">12. 尽量使用 React.ComponentProps<typeof Component> 减少非必要props导出</h2>
+<h2 id="13-不要在-type-或-interface-中使用函数声明">13. 不要在 type 或 interface 中使用函数声明</h2>
+<pre><code class="language-javascript">/** ✅ */
+interface ICounter {
+  start: (value: number) =&gt; string
+}
+
+/** ❌ */
+interface ICounter1 {
+  start(value: number): string
+}
+</code></pre>
+<h2 id="14-当局部组件结合多组件进行组件间状态通信时如果不是特别复杂则不需要用mobx或者-建议结合-usereducer-和-usecontext-一起使用频繁的组件间通信最佳实践">14. 当局部组件结合多组件进行组件间状态通信时，如果不是特别复杂，则不需要用mobx或者 建议结合 useReducer() 和 useContext() 一起使用，频繁的组件间通信最佳实践：</h2>
+<p><code>Store.ts</code></p>
+<pre><code class="language-javascript">import * as React from 'react';
+
+export interface State {
+  state1: boolean;
+  state2: boolean;
+}
+
+export const initState: State = {
+  state1: false,
+  state2: true,
+};
+
+export type Action = 'action1' | 'action2';
+
+export const StoreContext = React.createContext&lt;{
+  state: State;
+  dispatch: React.Dispatch&lt;Action&gt;;
+}&gt;({ state: initState, dispatch: value =&gt; { /** noop */ } });
+
+
+export const reducer: React.Reducer&lt;State, Action&gt; = (state, action) =&gt; {
+ // 用 reducer 的好处之一是可以拿到之前的 state
+  switch (action) {
+    case 'action1':
+      return { ...state, state1: !state.state1 };
+    case 'action2':
+      return { ...state, state2: !state.state2 };
+    default:
+      return state;
+  }
+};
+</code></pre>
+<p><code>WithProvider.tsx</code></p>
+<pre><code class="language-javascript">import * as React from 'react';
+import { StoreContext, reducer, initState } from './store';
+
+const { useReducer } = React;
+
+const WithProvider: React.FC&lt;Record&lt;string, unknown&gt;&gt; = (props: React.PropsWithChildren&lt;Record&lt;string, unknown&gt;&gt;) =&gt; {
+  // 将 state 作为根节点的状态注入到子组件中
+  const [state, dispatch] = useReducer(reducer, initState);
+  const { children } = props;
+
+  return &lt;StoreContext.Provider value={{ state, dispatch }}&gt;{children}&lt;/StoreContext.Provider&gt;;
+};
+
+export default WithProvider;
+</code></pre>
+<p>父组件：</p>
+<pre><code class="language-javascript">import * as React from 'react';
+import WithProvider from './withProvider';
+import Component1 from './components/Component1';
+import Component2 from './components/Component2';
+
+const { useRef, useState, useEffect, useMemo } = React;
+
+interface RankProps {}
+
+const defaultProps: RankProps = {};
+
+const Rank: React.FC&lt;RankProps&gt; = (props: React.PropsWithChildren&lt;RankProps&gt; = defaultProps) =&gt; {
+  const {} = props;
+
+  return (
+    &lt;WithProvider&gt;
+      &lt;Component1 /&gt;
+      &lt;Component2 /&gt;
+    &lt;/WithProvider&gt;
+  );
+};
+
+
+export default Rank;
+
+</code></pre>
+<p>子组件只需要 import <code>StoreContext</code> 之后 <code>useContext()</code> 就能得到 state 和 dispatch</p>
+<pre><code class="language-javascript">import * as React from 'react';
+import { StoreContext } from '../../store';
+
+const { useContext } = React;
+
+interface Component1Props {}
+
+const defaultProps: Component1Props = {};
+
+const Component1: React.FC&lt;Component1Props&gt; = (props: React.PropsWithChildren&lt;Component1Props&gt; = defaultProps) =&gt; {
+  const { state, dispatch } = useContext(StoreContext);
+
+  const {} = props;
+
+  return (
+    &lt;&gt;
+      state1: {state.state1 ? 'true' : 'false'}
+      &lt;button
+        type=&quot;button&quot;
+        onClick={(): void =&gt; {
+          dispatch('action1');
+        }}
+      &gt;
+        changeState1 with Action1
+      &lt;/button&gt;
+    &lt;/&gt;
+  );
+};
+
+export default React.memo(Component1); // 建议有context 的地方最好 memo 一下，提高性能
+
+</code></pre>
+<p><code>Store.ts</code> 和 <code>WithProvider.tsx</code> 可以配置成 vscode snippets，需要用到时直接使用。</p>
+<h2 id="15-类-golang-风格的异步接口最佳实践">15. 类 Golang 风格的异步接口最佳实践</h2>
+<pre><code class="language-javascript">const asyncTo = &lt;T, E = Error&gt;(p: Promise&lt;T&gt;): Promise&lt;[T, null] | [undefined, E]&gt; =&gt;
+  p.then&lt;[T, null]&gt;((data: T) =&gt; [data, null]).catch&lt;[undefined, E]&gt;((err: E) =&gt; [undefined, err]);
+
+const [res1, err1] = await asyncTo(new Promise(resolve =&gt; resolve('success'))); // res1: 'success', err1: null
+
+const [res2, err2] = await asyncTo(new Promise((_, reject) =&gt; reject('error'))); // res2: undefined, err2: 'error'
+</code></pre>
+<h1 id="参考">参考</h1>
+<p>[1] <a href="https://mp.weixin.qq.com/s/mUblBpj6pmdxz9mLKEDJTw">React + TypeScript 实践</a><br>
+[2] <a href="https://juejin.cn/post/6844903938093744135">精读《React Hooks 最佳实践》</a></p>
+<p><strong>欢迎在评论或 issue 中讨论，指出不合理之处，补充其他最佳实践~</strong></p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#%E5%89%8D%E7%BD%AE%E5%B7%A5%E4%BD%9C">前置工作</a></li>
+<li><a href="#%E5%BC%95%E5%85%A5-react%E6%B0%B8%E8%BF%9C%E4%BD%BF%E7%94%A8%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4%E5%AF%BC%E5%85%A5namespace-import">引入 React：永远使用命名空间导入（namespace import）</a></li>
+<li><a href="#%E7%BB%84%E4%BB%B6%E5%BC%80%E5%8F%91">组件开发</a>
+<ul>
+<li><a href="#1-%E5%B0%BD%E9%87%8F%E4%BD%BF%E7%94%A8function-component%E5%A3%B0%E6%98%8E%E5%8D%B3-reactfc">1. 尽量使用Function Component声明，即 React.FC：</a></li>
+</ul>
+</li>
+<li><a href="#hook-%E7%9B%B8%E5%85%B3">Hook 相关</a>
+<ul>
+<li><a href="#2-usestatet-%E5%BD%93%E7%8A%B6%E6%80%81%E5%88%9D%E5%A7%8B%E5%80%BC%E4%B8%BA%E7%A9%BA%E6%97%B6%E6%8E%A8%E8%8D%90%E5%86%99%E5%87%BA%E5%AE%8C%E6%95%B4%E6%B3%9B%E5%9E%8B%E5%90%A6%E5%88%99%E5%8F%AF%E4%BB%A5%E8%87%AA%E5%8A%A8%E6%8E%A8%E6%96%AD%E7%B1%BB%E5%9E%8B">2. useState<T>： 当状态初始值为空时，推荐写出完整泛型，否则可以自动推断类型。</a></li>
+<li><a href="#3-usememo-%E5%92%8C-usecallback-%E4%BC%9A%E9%9A%90%E5%BC%8F%E6%8E%A8%E6%96%AD%E7%B1%BB%E5%9E%8B%E6%8E%A8%E8%8D%90%E4%B8%8D%E4%BC%A0%E6%B3%9B%E5%9E%8B">3. useMemo() 和 useCallback() 会隐式推断类型，推荐不传泛型</a></li>
+<li><a href="#4-%E8%87%AA%E5%AE%9A%E4%B9%89hook%E5%A6%82%E6%9E%9C%E8%BF%94%E5%9B%9E%E4%B8%BA%E6%95%B0%E7%BB%84%E9%9C%80%E8%A6%81%E6%89%8B%E5%8A%A8%E6%B7%BB%E5%8A%A0-const-%E6%96%AD%E8%A8%80">4. 自定义hook如果返回为数组，需要手动添加 const 断言：</a></li>
+</ul>
+</li>
+<li><a href="#%E5%85%B6%E4%BB%96">其他</a>
+<ul>
+<li><a href="#5-%E4%BD%BF%E7%94%A8%E9%BB%98%E8%AE%A4%E5%8F%82%E6%95%B0%E5%80%BC%E4%BB%A3%E6%9B%BF%E9%BB%98%E8%AE%A4%E5%B1%9E%E6%80%A7">5. 使用默认参数值代替默认属性</a></li>
+<li><a href="#6-%E5%BB%BA%E8%AE%AE%E4%BD%BF%E7%94%A8-interface-%E5%AE%9A%E4%B9%89%E7%BB%84%E4%BB%B6-propsts-%E5%AE%98%E6%96%B9%E6%8E%A8%E8%8D%90%E5%81%9A%E6%B3%95%E4%BD%BF%E7%94%A8-type-%E4%B9%9F%E5%8F%AF%E4%B8%8D%E5%BC%BA%E5%88%B6">6. 建议使用 Interface 定义组件 props（TS 官方推荐做法），使用 type 也可，不强制</a></li>
+<li><a href="#7-%E4%BD%BF%E7%94%A8-componentprops-%E8%8E%B7%E5%8F%96%E6%9C%AA%E8%A2%AB%E5%AF%BC%E5%87%BA%E7%9A%84%E7%BB%84%E4%BB%B6%E5%8F%82%E6%95%B0%E7%B1%BB%E5%9E%8B%E4%BD%BF%E7%94%A8-returntype-%E8%8E%B7%E5%8F%96%E8%BF%94%E5%9B%9E%E5%80%BC%E7%B1%BB%E5%9E%8B">7. 使用 ComponentProps 获取未被导出的组件参数类型，使用 ReturnType 获取返回值类型</a></li>
+<li><a href="#8-%E5%AF%B9-type-%E6%88%96-interface-%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A%E6%97%B6%E5%B0%BD%E9%87%8F%E4%BD%BF%E7%94%A8-%E4%BB%A5%E4%BE%BF%E8%8E%B7%E5%BE%97%E6%9B%B4%E5%A5%BD%E7%9A%84%E7%B1%BB%E5%9E%8B%E6%8F%90%E7%A4%BA">8. 对 type 或 interface 进行注释时尽量使用 /** */，以便获得更好的类型提示</a></li>
+<li><a href="#9-%E7%BB%84%E4%BB%B6-props-ts-%E7%B1%BB%E5%9E%8B%E8%A7%84%E8%8C%83">9. 组件 Props ts 类型规范</a></li>
+<li><a href="#10-%E7%BB%84%E4%BB%B6%E4%B8%AD-event-%E5%A4%84%E7%90%86">10. 组件中 event 处理</a></li>
+<li><a href="#11-%E5%B0%BD%E9%87%8F%E4%BD%BF%E7%94%A8-optional-channing">11. 尽量使用 optional channing</a></li>
+<li><a href="#12-%E5%B0%BD%E9%87%8F%E4%BD%BF%E7%94%A8-reactcomponentpropstypeof-component-%E5%87%8F%E5%B0%91%E9%9D%9E%E5%BF%85%E8%A6%81props%E5%AF%BC%E5%87%BA">12. 尽量使用 React.ComponentProps<typeof Component> 减少非必要props导出</a></li>
+<li><a href="#13-%E4%B8%8D%E8%A6%81%E5%9C%A8-type-%E6%88%96-interface-%E4%B8%AD%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0%E5%A3%B0%E6%98%8E">13. 不要在 type 或 interface 中使用函数声明</a></li>
+<li><a href="#14-%E5%BD%93%E5%B1%80%E9%83%A8%E7%BB%84%E4%BB%B6%E7%BB%93%E5%90%88%E5%A4%9A%E7%BB%84%E4%BB%B6%E8%BF%9B%E8%A1%8C%E7%BB%84%E4%BB%B6%E9%97%B4%E7%8A%B6%E6%80%81%E9%80%9A%E4%BF%A1%E6%97%B6%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%98%AF%E7%89%B9%E5%88%AB%E5%A4%8D%E6%9D%82%E5%88%99%E4%B8%8D%E9%9C%80%E8%A6%81%E7%94%A8mobx%E6%88%96%E8%80%85-%E5%BB%BA%E8%AE%AE%E7%BB%93%E5%90%88-usereducer-%E5%92%8C-usecontext-%E4%B8%80%E8%B5%B7%E4%BD%BF%E7%94%A8%E9%A2%91%E7%B9%81%E7%9A%84%E7%BB%84%E4%BB%B6%E9%97%B4%E9%80%9A%E4%BF%A1%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">14. 当局部组件结合多组件进行组件间状态通信时，如果不是特别复杂，则不需要用mobx或者 建议结合 useReducer() 和 useContext() 一起使用，频繁的组件间通信最佳实践：</a></li>
+<li><a href="#15-%E7%B1%BB-golang-%E9%A3%8E%E6%A0%BC%E7%9A%84%E5%BC%82%E6%AD%A5%E6%8E%A5%E5%8F%A3%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">15. 类 Golang 风格的异步接口最佳实践</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://CallanBi.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/">
+              <h3 class="post-title">
+                【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'dda136bbf45377c648de',
+    clientSecret: 'f43305dcc30bf8a19537657df304ae5532b31dda',
+    repo: 'my-blog-storage',
+    owner: 'CallanBi',
+    admin: ['CallanBi'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  
+  <a class="rss" href="https://CallanBi.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

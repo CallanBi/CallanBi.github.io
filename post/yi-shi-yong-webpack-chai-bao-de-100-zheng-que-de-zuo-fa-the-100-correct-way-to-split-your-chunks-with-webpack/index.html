@@ -1,0 +1,618 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack | Callan Bi&#39;s Blog</title>
+<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1662275411308">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://CallanBi.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack | Callan Bi&#39;s Blog - Atom Feed" href="https://CallanBi.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="
+
+技术积累，从翻译优质文章开始。本文翻译自：The 100% correct way to split your chunks with Webpack
+
+
+为自己网站的用户找出推送文件的最好方式是一件很麻烦的事。 太多不同的场景，不同的..." />
+    <meta name="keywords" content="好文翻译" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://CallanBi.github.io">
+  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1662275411308" alt="">
+  </a>
+  <h1 class="site-title">
+    Callan Bi&#39;s Blog
+  </h1>
+  <p class="site-description">
+    Callan Bi 的博客，记录技术成长和日常
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/CallanBi" target="_blank">
+          <i class="ri-github-line"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-05-09
+              </span>
+              <span>
+                19 min read
+              </span>
+              
+                <a href="https://CallanBi.github.io/tag/7jAHe2zhr/" class="post-tag">
+                  # 好文翻译
+                </a>
+              
+            </div>
+            
+              <img class="post-feature-image" src="https://CallanBi.github.io/post-images/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack.jpeg" alt="">
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <!-- more -->
+<blockquote>
+<p>技术积累，从翻译优质文章开始。本文翻译自：<a href="https://medium.com/hackernoon/the-100-correct-way-to-split-your-chunks-with-webpack-f8a9df5b7758">The 100% correct way to split your chunks with Webpack</a></p>
+</blockquote>
+<!-- more -->
+<p>为自己网站的用户找出推送文件的最好方式是一件很麻烦的事。 太多不同的场景，不同的技术，不同的术语了。</p>
+<p>在这篇 Blog 中，我希望告诉你你想知道的一切，你可以：</p>
+<ol>
+<li>
+<p>了解哪种文件拆分策略最适合你的网站和用户</p>
+</li>
+<li>
+<p>知道怎么去做</p>
+</li>
+</ol>
+<p>根据 <a href="https://webpack.js.org/glossary/">Webpack 词汇表</a>，有两种不同类型的文件拆分方式。 这两个概念听起来可以互换，但显然并不是这样：</p>
+<p><strong>Bundle splitting</strong>：创建更多，更小的文件（但不管怎样，每个网络请求中都要加载它们），来优化缓存。<br>
+<strong>Code splitting</strong>：动态加载代码，用户可以仅下载他们正在查看的网站部分所需的代码。</p>
+<p>第二个概念听起来更加吸引人啊，对吧？其实，许多关于此的文章都似乎认为这是加载 JS 文件的唯一有价值的 case。</p>
+<p>但是我来告诉你，对于多数站点来说，第一个才是更有价值的方式，而且应该是你对网站所做的首要的事情。</p>
+<p>我们接着深入往下看。</p>
+<h1 id="bundle-splitting">Bundle splitting</h1>
+<p>Bundle splitting 背后的想法非常简单。 如果你有一个巨大的文件，当你更改了一行代码，用户必须再次下载整个文件。 但是，如果我们将其拆分为两个文件，则用户只需下载已更改的文件，浏览器会从缓存中读取另一个文件。</p>
+<p>值得注意的是，由于 Bundle splitting 是完全针对缓存的，所以对于首次访问的用户而言（拆与不拆）没什么区别。</p>
+<p>（我认为太多的性能讨论都与首次访问网站有关。也许这部分是因为「第一印象很重要」，另一块是因为它很容易量化。）</p>
+<p>当涉及到频繁访问的用户时，量化性能优化带来的影响可能很麻烦，但我们必须量化！</p>
+<p>下面是我在前一段中提到的情况：</p>
+<ul>
+<li>
+<p>Alice 每周访问我们的网站一次，持续10周</p>
+</li>
+<li>
+<p>我们每周一次发版</p>
+</li>
+<li>
+<p>我们每周都会更新「产品列表」页</p>
+</li>
+<li>
+<p>我们还有一个「产品详情」页，现在我们先不管它</p>
+</li>
+<li>
+<p>在第5周，我们向网站添加一个新的 npm 包</p>
+</li>
+<li>
+<p>第8周，我们更新了其中一个既有的 npm 包</p>
+</li>
+</ul>
+<p>一些人（比如我）希望这种情况尽可能符合实际。 这种做法并不好。实际情况并不重要，我们之后会找出原因。 （先留个铺垫！）</p>
+<h1 id="比较基准值">比较基准值</h1>
+<p>假设我们的 JavaScript 包总大小为 400 KB，目前以单个文件<code>main.js</code>的形式加载。</p>
+<p>我们的 Webpack config 看起来像这样（省略了无关的配置内容）：</p>
+<pre><code class="language-javascript">const path = require('path');
+
+module.exports = {
+  entry: path.resolve(__dirname, 'src/index.js'),
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+  },
+};
+</code></pre>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">当只有一个入口时，Webpack 会将打包结果 bundle 命名为「main.js」</div>
+<p>（对于那些刚开始学习缓存更新策略的人：每当我提到<code>main.js</code>时，实际上是在说<code>main.xMePWxHo.js</code>之类的东西，这一坨疯狂的字母串是文件内容的哈希。这意味着当程序中代码更改时会产生不同的文件名 ，从而迫使浏览器下载新文件。）</p>
+<p>每周我们会对网站进行一些新更改，包中内容哈希都会更改。 所以，在每周 Alice 访问我们的网站时，都必须要下载一个新的400 KB文件。</p>
+<p>如果我们要做一个花里胡哨的表，它看起来就像这样。</p>
+<figure data-type="image" tabindex="1"><img src="https://CallanBi.github.io/post-images/1620541076491.png" alt="" loading="lazy"></figure>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">世界上最没用的 Total 统计</div>
+<p>这10周积起来，<strong>就是 4.12 MB</strong>。</p>
+<p>我们可以做得更好。</p>
+<h2 id="拆分出-vendor-包">拆分出 vendor 包</h2>
+<p>让我们把包拆成<code>main.js</code>和<code>vendor.js</code>。</p>
+<p>很简单，类似于：</p>
+<pre><code class="language-javascript">
+const path = require('path');
+
+module.exports = {
+  entry: path.resolve(__dirname, 'src/index.js'),
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
+};
+</code></pre>
+<p>Webpack 4 尽力为你做到了最好，你不必告诉它你怎么拆分你的 bundle。</p>
+<p>这会导致一些话术比如：「哦🐂🍺，Webpack整挺好！」</p>
+<p>还有许多类似于「你tm到底对我的 bundle 做了什么？！」的疑问。</p>
+<p>铛铛！加上<code>optimization.splitChunks.chunks = 'all'</code>是一种「把所有 <code>node_modules</code>里的东西栋放到一个叫<code>vendors~main.js</code>的文件」的说法。</p>
+<p>有了这个基本的 bundle splitting 之后，Alice 还会在每次访问时下载一个新的200 KB的 main.js，但只会在第一周，第八周和第五周下载这个 200 KB 的 <code>vendor.js</code>。<br>
+<img src="https://CallanBi.github.io/post-images/1620542292178.png" alt="" loading="lazy"></p>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">巧了，这两个 bundle 的大小恰好是200 KB。</div>
+<p><strong>总共 2.64 MB。</strong></p>
+<p>减少36％，配置中添加了五行代码，还不赖。 在继续读这篇文章之前，现在就去实践下。 如果需要从Webpack 3 升级到4，不要担心，它非常无痛（而且免费！）。</p>
+<p>我觉得这种性能提升可能会更抽象，因为分散在十个星期，但其实交付给忠实用户的字节数减少了36％，我们应该为自己感到自豪。</p>
+<p>但我们还可以做得更好。</p>
+<h2 id="把每个-npm-包都拆出来">把每个 npm 包都拆出来</h2>
+<p>我们的<code>vendor.js</code>遇到了与原来<code>main.js</code>文件相同的问题——对其中一部分进行更改意味着需要重新下载它的全部。</p>
+<p>所以为什么不为每个npm包单独准备一个文件呢？ 这很容易做到。</p>
+<p>那让我们将<code>react</code>，<code>lodash</code>，<code>redux</code>，<code>moment</code>等分成不同的文件：</p>
+<pre><code class="language-javascript">const path = require('path');
+const webpack = require('webpack');
+
+module.exports = {
+  entry: path.resolve(__dirname, 'src/index.js'),
+  plugins: [
+    new webpack.HashedModuleIdsPlugin(), // 确保 hash 不被意外改变
+  ],
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+  },
+  optimization: {
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            //取得名称。例如 /node_modules/packageName/not/this/part.js
+            // 或 /node_modules/packageName
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+
+            // npm package 是 URL 安全的，但有些服务不喜欢 @ 符号
+            return `npm.${packageName.replace('@', '')}`;
+          },
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<p><a href="https://webpack.js.org/guides/caching/">这篇文档</a> 会很好地说明这里的大多数内容，但是我要向你解释一些有趣的部分，因为它们花了我巨长的时间才弄对。</p>
+<ul>
+<li>
+<p>Webpack 拥有一些聪明但实际上有点傻的默认配置，像：分割输出文件时最多可以包含3个文件，最小文件大小为30 KB（即比这小的文件都可以合并在一起）。 所以我覆盖了这些配置。</p>
+</li>
+<li>
+<p><code>cacheGroups</code>是我们定义 Webpack 如何将 chunks 到输出到 bundle 的规则。 这里有一个叫做「vendor」的，任何<code>node_modules</code>的包都在这里。 通常，你只需将输出文件的名称定义为字符串。 但是我将<code>name</code>定义为一个函数（将为每个已解析的文件调用该函数），从模块路径返回包的名称。 结果是，每个包都会生成一个文件，比如 <code>npm.react-dom.899sadfhj4.js</code>。</p>
+</li>
+<li>
+<p>发包时<a href="https://docs.npmjs.com/cli/v7/configuring-npm/package-json">包名称必须是 URL安全的</a>。所以我们不必用<code>encodeURI</code> 处理 <code>packageName</code> 。但是，我发现 .NET服务无法提供名称中带有@的文件（来自范围限定的包），所以我在此代码段中替换了该命名。</p>
+</li>
+<li>
+<p>整个配置很棒，因为它是一劳永逸的。 它无需维护——我不需要按名称引用任何包。</p>
+</li>
+</ul>
+<p>这时，Alice 仍每周重新加载我们200 KB的<code>main.js</code>文件；在首次访问时仍将下载200 KB的 npm 包，但她永远不会再次下载相同的包。<br>
+<img src="https://CallanBi.github.io/post-images/1620544773524.png" alt="" loading="lazy"></p>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">突然发现每个 npm 包都恰好是20 KB。 世所罕见！</div>
+<p><strong>这是2.24MB。</strong></p>
+<p>与比较基准值相比减少了44％，仅仅从博客文章中 copy/plate 了某些代码的你来说，这非常酷。</p>
+<p>我在想会不会有可能超过50％？</p>
+<p>那不是盖了帽了吗。</p>
+<h2 id="拆分应用的代码区域">拆分应用的代码区域</h2>
+<p>让我们关注下可怜的 Alice 一次又一次（甚至再一次）下载的<code>main.js</code>文件。</p>
+<p>前面我提到过，我们在此站点上有两个截然不同的部分：一个产品列表和一个产品详情页。 这些区域中每个区域的自身的代码为 25 KB（保留150 KB的共享代码）。</p>
+<p>现在，我们的“产品详情”页面变化不大，因为我们做得如此完美。 因此，如果我们将其分成单独的文件，则大多数时候都可以从缓存中提供。</p>
+<p>对此，我们应该搞些事情。</p>
+<p>我们手动地添加一些入口点，告诉 Webpack 为其中的每项创建一个文件。</p>
+<pre><code class="language-javascript">module.exports = {
+  entry: {
+    main: path.resolve(__dirname, 'src/index.js'),
+    ProductList: path.resolve(__dirname, 'src/ProductList/ProductList.js'),
+    ProductPage: path.resolve(__dirname, 'src/ProductPage/ProductPage.js'),
+    Icon: path.resolve(__dirname, 'src/Icon/Icon.js'),
+  },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash:8].js',
+  },
+  plugins: [
+    new webpack.HashedModuleIdsPlugin(), // 确保 hash 不被意外改变
+  ],
+  optimization: {
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            //取得名称。例如 /node_modules/packageName/not/this/part.js
+            // 或 /node_modules/packageName
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+
+            // npm package 是 URL 安全的，但有些服务不喜欢 @ 符号
+            return `npm.${packageName.replace('@', '')}`;
+          },
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<p>靠谱的 Webpack还会为在 ProductList 和 ProductPage 之间共享的内容创建文件，使得我们不会得到重复的代码。</p>
+<p>大多数情况下，这将为亲爱的 Alice 省下额外的50 KB下载量。<br>
+<img src="https://CallanBi.github.io/post-images/1620545771325.png" alt="" loading="lazy"></p>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">我们在第6周调整了 icon，我十分确定你还记得</div>
+<p><strong>这些仅仅1.815 MB！</strong></p>
+<p>我们已经为 Alice 节省了高达56％的下载量，并且这种节省将（在我们的理论场景中）一直持续到时间尽头。</p>
+<p>我之前提到过，在测试之下的实际情况并不重要。 这是因为，无论你遇到什么情况，结论都是相同的：将你的应用拆分为合理的小文件，你的的用户就会下载更少的代码。</p>
+<hr />
+<p>很快，我将要讨论「code splitting」——另一种类型的文件拆解——但首先，我想解决你现在在想的三个疑惑点。</p>
+<h3 id="1有很多网络请求会不会很慢">#1：有很多网络请求会不会很慢？</h3>
+<p>答案是很大声的“不”。</p>
+<p>在 HTTP/1.1 时代曾经是这种情况，但是在 HTTP/2 中却不是这种情况。</p>
+<p>尽管，<a href="https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff">这篇2016年的文章</a>和<a href="http://engineering.khanacademy.org/posts/js-packaging-http2.htm">Khan Academy 2015年的帖子</a>都得出了这样的结论：即使使用HTTP/2，下载太多文件的速度仍然较慢。 但在这两个帖子中，「太多」文件意味着「几百」。 因此，请记住，如果你有数百个文件，才可能会达到并发限制。</p>
+<p>或者你想知道追溯到 Windows 10上的 IE11 对 HTTP/2 的支持。我对使用比这更早版本的环境的人进行了详尽的调查，他们一致向我保证，他们不在乎网站加载的速度如何。</p>
+<h3 id="2会不会-每个webpack-bundle-中都有开销样板代码">#2：会不会 每个Webpack bundle 中都有开销/样板代码？</h3>
+<p>确实。</p>
+<h3 id="3会不会因为拥有多个小文件而丧失了压缩方面的优势">#3：会不会因为拥有多个小文件而丧失了压缩方面（的优势）？</h3>
+<p>对，也确实会。</p>
+<p>呃，糟了：</p>
+<ul>
+<li>
+<p>更多的文件 = 更多 Webpack 样板代码</p>
+</li>
+<li>
+<p>更多的文件 = 更少的压缩</p>
+</li>
+</ul>
+<p>让我们对它来一个量化，使得我们确切知道需要担心的程度。</p>
+<p>……</p>
+<p>OK，我刚做了一个测试，一个190 KB的站点分为19个文件，添加到发送给浏览器的总字节数中大约增加了2％。</p>
+<p>所以……对于第一次访问有2%的增量，与此同时在之后的访问有 60% 减少量，直到宇宙的尽头。</p>
+<p>因此我们所需要担心的程度正确的是：完全没有。</p>
+<p>在测试 1 vs 19 个文件时，我在想我可以在一些不同的网络上使用它，包括HTTP/1.1。</p>
+<p>然后下面是我搞的表格，强力支撑了“文件越多越好”的想法：</p>
+<figure data-type="image" tabindex="2"><img src="https://CallanBi.github.io/post-images/1620547675439.png" alt="" loading="lazy"></figure>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">（从Firebase静态主机)加载的同一190 KB网站）</div>
+<p>在 3G 和 4G 上，当有 19 个文件时，此站点的加载时间减少了 30％。</p>
+<p>真的如此吗？</p>
+<p>这是噪点非常多的数据。 例如，在 Run 2 的 4G 网络上，站点加载了646毫秒，然后两次运行则花费了 1116毫秒——在什么都没做的情况下长了73％。 因此，宣称 HTTP/2 的速度提高了30％似乎有点狡猾。</p>
+<p>（即将推出：一种自定义图表类型，旨在可视化页面加载时间的差异。）</p>
+<p>我建了这张表，尝试量化 HTTP/2 的区别，但事实上我能唯一能说的是“可能没有多大区别”。</p>
+<p>真正奇怪是最后两排。 那是旧的 Windows 和 HTTP/1.1，我打赌速度会慢很多，但并非如此。我想我需更慢的网络。</p>
+<hr />
+<p>讲故事的时间到了！ 我从<a href="https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/">微软官网下载了Windows 7虚拟机</a>来测试这些内容。</p>
+<p>它附带了IE8，但我升级到IE9。</p>
+<p>所以我转到了微软的IE9下载页面，然后……<br>
+<img src="https://CallanBi.github.io/post-images/1620548267039.png" alt="" loading="lazy"></p>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">我天。你在逗我？这还有什么好说哒</div>
+<p>最后关于 HTTP/2 的最后一句话。你知道它现在已经集成到 Node 中了吗？ 如果你想玩一下，我编写了一个带有 gzip，brotli 和响应缓存的<a href="https://gist.github.com/davidgilbertson/e5690c04e06c4882cf5761f8acff36ec">100行HTTP/2 服务器</a>，带来🚢新的测试乐趣。</p>
+<hr />
+<p>关于 bundle splitting 的一切就讲完了。 我觉得这种方法的唯一缺点就是必须不断说服人们相信加载许多小文件是OK的。</p>
+<hr />
+<h1 id="code-splitting别加载你不需要的代码">Code splitting（别加载你不需要的代码）</h1>
+<p>这种特别的方法只有在某些站点上才有意义，比如我的。</p>
+<p>我想应用我刚想出来的 20/20 规则：如果你的网站的某个部分只有20％的用户访问过，并且这个部分大过你站点 JavaScript 的20％，那么你只需要按需加载代码。</p>
+<p>试着调整这些数字，显然，还有比这更复杂的情况。 关键是要有一个阈值，可以确定 code splitting 对于你的网站到底合不合理。</p>
+<h2 id="怎么确定">怎么确定？</h2>
+<p>比如你有一个购物网站，并且想知道是否应该将「支付」代码分开，因为只有30％的用户可以走到支付流程。</p>
+<p><mark>你需要做的第一件事是卖质量更好的东西。</mark></p>
+<p>第二件事，是计算出这块完全唯一的代码量。 由于你在执行「code splitting」之前应该始终进行「bundle splitting」，所以你可能已经知道这部分代码有多少。</p>
+<p>（它可能比你想象的要小，所以在你跃跃欲试之前先把代码量累加一下。比如你有一个 React 站点，那么你的 store，reduce，路由，actions 等都将在整个站点上共享。 完全唯一的部分主要是一些组件和他们的工具。）</p>
+<p>然后你注意到，支付页面完全唯一的代码为 7 KB。 该网站的其余部分为 300 KB。 我看到这个会说，emm，我不会费力去拆分这块的代码，有这么几个原因：</p>
+<ul>
+<li>
+<p>预先加载它不会减慢速度。 记住你正在并行加载所有这些文件。 可以试试看记录 300 KB 和 307 KB之间的加载时间差异。</p>
+</li>
+<li>
+<p>如果你想之后加载这块的代码，那用户在点击「把我的钱拿走」的时候必须等待这块的文件——这个时候正是你想要它最平滑的时候。</p>
+</li>
+<li>
+<p>Code splitting 要求你改你的项目中的代码。 它引入了异步逻辑，而以前只有同步逻辑。 这不是什么造火箭的学问，但是也具有复杂性，因此我认为应该以可感觉到的用户体验改善为由（去做这件事）。</p>
+</li>
+</ul>
+<p>OK，以上就是所有的类似于「这项令人兴奋的技术可能不适用你」的派对扫兴者的话术了。</p>
+<p>我们来看下两个 code-splitting 的例子……</p>
+<h2 id="polyfills">Polyfills</h2>
+<p>我将从这里开始，因为它适用于大多数网站，并且是一个很好的简单入门。</p>
+<p>我在网站上使用了许多花哨的功能，因此我有可以导入我需要的所有polyfills的文件。 它包括以下八行：</p>
+<pre><code class="language-javascript">require('whatwg-fetch');
+require('intl');
+require('url-polyfill');
+require('core-js/web/dom-collections');
+require('core-js/es6/map');
+require('core-js/es6/string');
+require('core-js/es6/array');
+require('core-js/es6/object');
+</code></pre>
+<p>我直接在入口 <code>index.js</code> 的顶部导入此文件。</p>
+<pre><code class="language-javascript">import './polyfills';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App/App';
+import './index.css';
+
+const render = () =&gt; {
+  ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+}
+
+render(); // 对，目前这一行是无意义的
+</code></pre>
+<p>我们使用 bundle spiltting 部分中的 Webpack config，由于这里有四个 npm 包，我的 polyfill 将被自动拆分为四个不同的文件。 它们总共约 25 KB，并且90％的浏览器不需要它们，所以值得动态加载。</p>
+<p>使用 Webpack 4和 <code>import()</code> 语法（不要和没有括号的<code>import</code>语法搞混了），条件加载polyfill是非常容易的。</p>
+<pre><code class="language-javascript">import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App/App';
+import './index.css';
+
+const render = () =&gt; {
+  ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+}
+
+if (
+  'fetch' in window &amp;&amp;
+  'Intl' in window &amp;&amp;
+  'URL' in window &amp;&amp;
+  'Map' in window &amp;&amp;
+  'forEach' in NodeList.prototype &amp;&amp;
+  'startsWith' in String.prototype &amp;&amp;
+  'endsWith' in String.prototype &amp;&amp;
+  'includes' in String.prototype &amp;&amp;
+  'includes' in Array.prototype &amp;&amp;
+  'assign' in Object &amp;&amp;
+  'entries' in Object &amp;&amp;
+  'keys' in Object
+) {
+  render();
+} else {
+  import('./polyfills').then(render);
+}
+</code></pre>
+<p>有道理吧？ 如果所有这些东西都支持的话，就渲染页面。 否则导入polyfills，然后渲染页面。 当此代码在浏览器中运行时，Webpack 运行时将处理这四个 npm 包的加载，并且在下载并解析它们后，调用<code>render()</code> 并继续进行。</p>
+<p>（顺便说一句，要使用<code>import()</code>，你将需要<a href="https://babeljs.io/docs/en/babel-plugin-syntax-dynamic-import/">Babel的dynamic-import plugin</a>。此外，正如Webpack文档所说，<code>import()</code><a href="https://webpack.js.org/guides/code-splitting/#dynamic-imports">用了promises</a>，你需要将这个polyfill与其他polyfill分开去polyfill。）</p>
+<p>很简单，是吧？</p>
+<p>下面是有些麻烦的例子……</p>
+<h2 id="基于路由的动态加载react-独占">基于路由的动态加载（React 独占）</h2>
+<p>回到 Alice 的例子，假设该网站现在有一个「管理」部分，商品销售者可以登录并管理他们想要出售的玩意。</p>
+<p>这一块具有许多完美的特性，大量的图表以及 npm 中的大型图标库。 我已经做了 bundle splitting，可以看到它们全部超过100 KB。</p>
+<p>当前，我有一个路由设置，当用户查看/admin URL时将呈现<code>&lt;AdminPage&gt;</code>。 当Webpack将所有内容打包在一起时，它将找到<code>import AdminPage from './AdminPage.js'</code>，然后说“喂，我需要在初始有效载荷中包括它”。</p>
+<p>但是我们不希望这样。 我们需要把这个引用放在 admin 页面动态导入里，比如<code>import('./AdminPage.js')</code>，Webpack 就会知道需要动态加载它。</p>
+<p>很酷，不需要任何配置。</p>
+<p>所以，我不不应该直接引用<code>AdminPage</code>，而是建另一个将在用户访问<code>/admin</code> URL时呈现的组件， 它可能看起来像这样：</p>
+<pre><code class="language-javascript">
+import React from 'react';
+
+class AdminPageLoader extends React.PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      AdminPage: null,
+    }
+  }
+
+  componentDidMount() {
+    import('./AdminPage').then(module =&gt; {
+      this.setState({ AdminPage: module.default });
+    });
+  }
+
+  render() {
+    const { AdminPage } = this.state;
+
+    return AdminPage
+      ? &lt;AdminPage {...this.props} /&gt;
+      : &lt;div&gt;Loading...&lt;/div&gt;;
+  }
+}
+
+export default AdminPageLoader;
+</code></pre>
+<p>这个概念很简单，对吧？ 组件<code>mount</code>后（意味着用户位于<code>/admin</code> URL），我们将动态加载<code>./AdminPage.js</code>，然后保存该组件的引用。</p>
+<p>在 render 方法中，我们仅仅简单地在等待<code>&lt;AdminPage&gt;</code>加载时渲染<code>&lt;div&gt; Loading ... &lt;/ div&gt;</code>，在<code>&lt;AdminPage&gt;</code>加载完成存储它。</p>
+<p>我只是出于好玩写了这个例子，实际上你只需要使用<code>react-loadable</code>来实现它，正如 <a href="https://reactjs.org/docs/code-splitting.html">React Code-Splitting</a> 文档说的那样。</p>
+<hr />
+<p>好啦，我想这就是全部了。有没有可以总结我上面说过的东西的句子，但用更少的文字？</p>
+<ul>
+<li>
+<p>如果人们多次访问你的网站，就把你的的代码分成许多小文件。</p>
+</li>
+<li>
+<p>如果你的网站上有大部分用户不访问的大块内容，动态加载这块代码。</p>
+</li>
+</ul>
+<p>感谢阅读。祝你今天愉快~</p>
+<p>靠，我忘了提 CSS 了。</p>
+<hr />
+<mark style="font-weight: bold; font-size: 25px">本文由本博客博主 Moltemort 翻译，转载本文请注明源链接</mark>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#bundle-splitting">Bundle splitting</a></li>
+<li><a href="#%E6%AF%94%E8%BE%83%E5%9F%BA%E5%87%86%E5%80%BC">比较基准值</a>
+<ul>
+<li><a href="#%E6%8B%86%E5%88%86%E5%87%BA-vendor-%E5%8C%85">拆分出 vendor 包</a></li>
+<li><a href="#%E6%8A%8A%E6%AF%8F%E4%B8%AA-npm-%E5%8C%85%E9%83%BD%E6%8B%86%E5%87%BA%E6%9D%A5">把每个 npm 包都拆出来</a></li>
+<li><a href="#%E6%8B%86%E5%88%86%E5%BA%94%E7%94%A8%E7%9A%84%E4%BB%A3%E7%A0%81%E5%8C%BA%E5%9F%9F">拆分应用的代码区域</a>
+<ul>
+<li><a href="#1%E6%9C%89%E5%BE%88%E5%A4%9A%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E4%BC%9A%E4%B8%8D%E4%BC%9A%E5%BE%88%E6%85%A2">#1：有很多网络请求会不会很慢？</a></li>
+<li><a href="#2%E4%BC%9A%E4%B8%8D%E4%BC%9A-%E6%AF%8F%E4%B8%AAwebpack-bundle-%E4%B8%AD%E9%83%BD%E6%9C%89%E5%BC%80%E9%94%80%E6%A0%B7%E6%9D%BF%E4%BB%A3%E7%A0%81">#2：会不会 每个Webpack bundle 中都有开销/样板代码？</a></li>
+<li><a href="#3%E4%BC%9A%E4%B8%8D%E4%BC%9A%E5%9B%A0%E4%B8%BA%E6%8B%A5%E6%9C%89%E5%A4%9A%E4%B8%AA%E5%B0%8F%E6%96%87%E4%BB%B6%E8%80%8C%E4%B8%A7%E5%A4%B1%E4%BA%86%E5%8E%8B%E7%BC%A9%E6%96%B9%E9%9D%A2%E7%9A%84%E4%BC%98%E5%8A%BF">#3：会不会因为拥有多个小文件而丧失了压缩方面（的优势）？</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#code-splitting%E5%88%AB%E5%8A%A0%E8%BD%BD%E4%BD%A0%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E4%BB%A3%E7%A0%81">Code splitting（别加载你不需要的代码）</a>
+<ul>
+<li><a href="#%E6%80%8E%E4%B9%88%E7%A1%AE%E5%AE%9A">怎么确定？</a></li>
+<li><a href="#polyfills">Polyfills</a></li>
+<li><a href="#%E5%9F%BA%E4%BA%8E%E8%B7%AF%E7%94%B1%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BDreact-%E7%8B%AC%E5%8D%A0">基于路由的动态加载（React 独占）</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://CallanBi.github.io/post/back2blog/">
+              <h3 class="post-title">
+                Back2Blog
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'dda136bbf45377c648de',
+    clientSecret: 'f43305dcc30bf8a19537657df304ae5532b31dda',
+    repo: 'my-blog-storage',
+    owner: 'CallanBi',
+    admin: ['CallanBi'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  
+  <a class="rss" href="https://CallanBi.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

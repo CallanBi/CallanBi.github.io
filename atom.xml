@@ -1,0 +1,1333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://CallanBi.github.io</id>
+    <title>Callan Bi&apos;s Blog</title>
+    <updated>2022-09-04T07:10:43.063Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://CallanBi.github.io"/>
+    <link rel="self" href="https://CallanBi.github.io/atom.xml"/>
+    <subtitle>Callan Bi 的博客，记录技术成长和日常</subtitle>
+    <logo>https://CallanBi.github.io/images/avatar.png</logo>
+    <icon>https://CallanBi.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2022, Callan Bi&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[JavaScript is weird! 记一些奇奇怪怪的表达式打牢基础]]></title>
+        <id>https://CallanBi.github.io/post/javascript-is-weird-ji-yi-xie-qi-qi-guai-guai-de-biao-da-shi-da-lao-ji-chu/</id>
+        <link href="https://CallanBi.github.io/post/javascript-is-weird-ji-yi-xie-qi-qi-guai-guai-de-biao-da-shi-da-lao-ji-chu/">
+        </link>
+        <updated>2022-04-21T15:15:49.000Z</updated>
+        <content type="html"><![CDATA[<p>首先在 <a href="https://jsisweird.com/">https://jsisweird.com/</a> 这个网站看看究竟能对多少题。</p>
+<p>记录一下我所不清楚的地方。</p>
+<h1 id="数字-无穷与0相互运算会发生什么">数字、无穷与0相互运算会发生什么？</h1>
+<pre><code class="language-javascript">2 / 0 // Infinity
+0 / 0 // NaN
+-1 / 0 //-Infinity
+Infinity * 0 // NaN
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://CallanBi.github.io/post-images/1650600972687.png" alt="" loading="lazy"></figure>
+<h1 id="原始类型基本类型">原始类型（基本类型）</h1>
+<p>基本类型（基本数值、基本数据类型）是一种既非对象也无方法的数据。在 JavaScript 中，共有7种基本类型：string，number，bigint，boolean，<strong>null</strong>，undefined，symbol (ECMAScript 2016新增)。</p>
+<p>注意：<br>
+虽然 <code>typeof null === 'object'</code> ，但 <code>null</code> 也是原始类型。<br>
+<code>typeof NaN === 'number'</code>，NaN 是原始类型。</p>
+<blockquote>
+<p>The <a href="https://262.ecma-international.org/5.1/#sec-4.3.23">ECMAScript Language Specification</a> explains NaN as a number value that is a IEEE 754 “Not-a-Number” value. It might seem strange, but this is a common computer science principle.</p>
+<p>There are some odd issues surrounding NaN in JavaScript, however. For instance, this is one of the very few instances where the Object.is function disagrees with triple equal.</p>
+<p><code>NaN === NaN; // -&gt; false </code><br>
+<code>Object.is(NaN, NaN); // -&gt; true</code></p>
+<p>Another such rare instance can be seen in question 24.</p>
+<p>This legacy issue was later remedied with the isNaN function.</p>
+<p><code>isNaN(NaN); // -&gt; true</code></p>
+</blockquote>
+<h1 id="加减运算符发生的强制类型转换到底是返回什么">加减运算符发生的强制类型转换到底是返回什么？</h1>
+<p>是返回对两边的 <code>toString()</code> ? 又或者是 <code>Number()</code> ?</p>
+<p>看下 <a href="https://262.ecma-international.org/5.1/#sec-11.6">ECMAScript Language Specification</a> 这段话：<br>
+<img src="https://CallanBi.github.io/post-images/1650617354502.png" alt="" loading="lazy"></p>
+<p>总结一下。</p>
+<h2 id="对于-运算符">对于<code>+</code> 运算符</h2>
+<ol>
+<li>当一边为 string，被识别为字符串拼接，会优先将另一边转换为 string 类型进行拼接。</li>
+<li>当一边为<strong>引用类型</strong>，则两边都转化成字符串进行拼接。</li>
+<li>当一边为 number，另一边为<strong>原始类型</strong>，则另一边转换为 number 。</li>
+<li>两边都为非 number 且 非 string 的原始类型，先尝试将一边强制转化为 number 。</li>
+</ol>
+<pre><code class="language-javascript">123 + '123' // 123123   （规则1）
+123 + null  // 123    （规则3）
+123 + true // 124    （规则3）
+123 + {}  // 123[object Object]    （规则2）
+</code></pre>
+<h2 id="对于-运算符-2">对于 <code>- ，* ，/</code> 运算符</h2>
+<p>在对各种非 number 类型运用数学运算符(- * /)时，会先将非 number 类型转换为 number。</p>
+<pre><code class="language-javascript">1 - true // 0， 首先把 true 转换为数字 1， 然后执行 1 - 1
+1 - null // 1,  首先把 null 转换为数字 0， 然后执行 1 - 0
+1 * undefined //  NaN, undefined 转换为数字是 NaN
+2 * ['5'] //  10， ['5']首先会变成 '5' -- 拆箱操作, 然后再变成数字 5
+</code></pre>
+<h1 id="truthy-值">truthy 值</h1>
+<p>看下<a href="https://developer.mozilla.org/en-US/docs/Glossary/Truthy">这个</a>：</p>
+<blockquote>
+<p>In JavaScript, a truthy value is a value that is considered true when encountered in a Boolean context. All values are truthy unless they are defined as falsy. That is, all values are truthy except <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>&quot;&quot;</code>, <code>null</code>, <code>undefined</code>, and <code>NaN</code>.</p>
+</blockquote>
+<p>下面这些都是 truthy 值：</p>
+<pre><code class="language-javascript">if (true)
+if ({})
+if ([])
+if (42)
+if (&quot;0&quot;)
+if (&quot;false&quot;)
+if (new Date())
+if (-42)
+if (12n)
+if (3.14)
+if (-3.14)
+if (Infinity)
+if (-Infinity)
+</code></pre>
+<p>如果操作符左边的运算对象是 truthy 值，则 <code>&amp;&amp;</code> 操作符返回操作符右边的运算对象：</p>
+<pre><code class="language-javascript">true &amp;&amp; &quot;dog&quot;
+// returns &quot;dog&quot;
+
+[] &amp;&amp; &quot;dog&quot;
+// returns &quot;dog&quot;
+</code></pre>
+<h1 id="操作符的规则"><code>==</code> 操作符的规则</h1>
+<p>看下 <a href="https://262.ecma-international.org/11.0/#sec-abstract-equality-comparison">ecma262 第11版中关于抽象等式比较（Abstract Equality Comparison）的介绍</a>。</p>
+<p>我写了下了每一条规则对应的场景：</p>
+<pre><code class="language-javascript">/* 类型相同，的执行全等运算判断 **/
+1 == 2 // false
+1 == 1 // true
+
+/* 有一边是 undefined 且另一边是 null， 返回 true **/
+undefined == null // true
+null == undefined // true
+
+/* 一边是string 一边是 number，先将 string 转为 number **/
+1 == '1' // true
+1 == '1a' // false, '1a' 调用 Number() 会转化为 NaN
+
+/* 一边是string 一边是 bigint，先将 string 转为 bigint **/
+1n == '1' // true
+1n == '1a' // false, '1a' 调用 Number() 会转化为 NaN
+
+/* 只要一边是boolean，先将 boolean 强制转为 number **/
+1 == true // true
+false == 1 // 
+
+/* 一边是 string, number, symbol 或 bigint，另一边是 Object 引用类型，先将 Object 转为原始值 **/
+'1,2,[object Object]' == ['1', 2, {}] // true
+
+/* 一边是  bigint, 另一边是 number **/
+/* 如果有一边是 NaN，+Infinity, -Infinity，返回 false，否则比较数学上的值的大小 **/
++Infinity == 999999999999999999999999999n // false
+1 == 1n // true
+</code></pre>
+<p>发现：</p>
+<ol>
+<li>number 除了和引用类型比较外，和其他类型比较时都是其他类型先转为 number。</li>
+<li><code>NaN</code> 和其他任何类型比较永远返回 <code>false</code>（包括和它自己）。</li>
+<li>除了 <code> undefined == null</code> 外，这两个值和其他任何类型比较都为 <code>false</code>。</li>
+<li>只要一边是boolean，先将 boolean 强制转为 number</li>
+<li>非 <code> boolean</code> 外的原始类型和引用类型比较，先把引用类型转为原始类型。</li>
+</ol>
+<h1 id="二进制八进制十进制十六进制和它们的相互运算">二进制，八进制，十进制，十六进制和它们的相互运算</h1>
+<p>参考：<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Numbers_and_dates">MDN Web Docs Numbers and dates</a>。</p>
+<h2 id="二进制binary">二进制（binary）</h2>
+<p>以 <code>0b</code> 或 <code>0B</code> 开头，如：</p>
+<pre><code class="language-javscript">0b01111111100000000000000000000000; // 2139095040
+</code></pre>
+<h2 id="八进制octal">八进制（octal）</h2>
+<ol>
+<li>如果前导0后面的数字在 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>0</mn><mo>∼</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">0 \sim 7</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">7</span></span></span></span> 范围内，则被解读为八进制；</li>
+</ol>
+<pre><code class="language-javascript">const n = 0755; // 493
+0888 // 888 parsed as decimal
+const a = 0o10; // ES2015: 8
+const b = 00777; // 510，即 8^0 7 + 8^1 * 7 + 8^2 * 7
+</code></pre>
+<ol start="2">
+<li>以 <code>0o</code>开头。</li>
+</ol>
+<h2 id="十六进制hexadecimal">十六进制（Hexadecimal）</h2>
+<p>以 <code>0x</code> 或 <code>0X</code> 开头。</p>
+<h2 id="以-10-为底的指数">以 10 为底的指数</h2>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span>e<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span> 或 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span>E<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span> 表示 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>n</mi><mo>×</mo><mn>1</mn><msup><mn>0</mn><mi>m</mi></msup></mrow><annotation encoding="application/x-tex">n \times 10^m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">n</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.664392em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.664392em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">m</span></span></span></span></span></span></span></span></span></span></span>。</p>
+<pre><code class="language-javascript">1E3   // 1000
+2e6   // 2000000
+0.1e2 // 10
+</code></pre>
+<h2 id="相互运算">相互运算</h2>
+<p>都先转为十进制再运算。</p>
+<h2 id="逻辑-操作符">逻辑 &amp;&amp; 操作符</h2>
+<blockquote>
+<p>The <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Logical_AND">logical AND operator</a> is usually used with Boolean values in if-statements, but it actually returns the value of one of the operands. <strong>If the first expression can be converted to true, then it returns the second. Otherwise, it returns the first.</strong></p>
+</blockquote>
+<p>只要第一个表达式为 false，就返回第一个表达式的值；如果第一个为 true，则返回第二个表达式的值。</p>
+<pre><code class="language-javascript">&quot;&quot; &amp;&amp; -0; // -&gt; &quot;&quot;
+-0 &amp;&amp; &quot;&quot;; // -&gt; -0
+5 &amp;&amp; 3; // -&gt; 3
+0 &amp;&amp; 3; // -&gt; 0
+</code></pre>
+<h1 id="练习题">练习题</h1>
+<h2 id="1">1.</h2>
+<pre><code class="language-javascript">[] == ![]
+</code></pre>
+<p>右边先转化为布尔值。由于 <code>[]</code> 是 truthy 值，所以 <code>![]</code> 是 false。</p>
+<p><code>[] == false</code>，一边为引用类型，一边为布尔类型。只要有一边是布尔，就先将布尔类型转为 number。</p>
+<p><code>[] == 0</code>, 一边为 <code>number</code> 类型（非  boolean 的原始类型），一边为引用类型。则先将引用类型转为原始类型。</p>
+<p><code>'' == 0</code>。一边为 string 类型，一边为 number 类型。则先将 string 转为 number。</p>
+<p><code>0 == 0</code>。则最后为 <code>true</code>。</p>
+<h2 id="2">2.</h2>
+<pre><code class="language-javascript">true == &quot;true&quot; 
+</code></pre>
+<p><code>1 == &quot;true&quot;</code> -&gt; <code>1 == NaN</code>，则最后为 <code>false</code>。</p>
+<h2 id="3">3.</h2>
+<pre><code class="language-javascript">010 - 03
+</code></pre>
+<pre><code>010; // -&gt; 8
+03; // -&gt; 3
+8 - 3; // -&gt; 5
+</code></pre>
+<p>所以答案为5。</p>
+<h2 id="4">4.</h2>
+<pre><code class="language-javascript">1/0 &gt; 10 ** 1000
+</code></pre>
+<blockquote>
+<p>JavaScript treats both of these values as infinite, and infinity is equal to infinity. <a href="https://en.wikipedia.org/wiki/Floating-point_arithmetic#Infinities">Learn more about infinities</a>.</p>
+</blockquote>
+<pre><code class="language-javascript">1/0; // -&gt; Infinity
+10 ** 1000; // -&gt; Infinity
+Infinity &gt; Infinity; // -&gt; false
+</code></pre>
+<p>所以答案为 false。</p>
+<h2 id="5">5.</h2>
+<pre><code class="language-javascript">true++
+</code></pre>
+<p>输出 stytaxError。</p>
+<p>只能死记下面的值了：</p>
+<pre><code class="language-javascript">true++; // -&gt; SyntaxError
+1++; // -&gt; SyntaxError
+&quot;x&quot;++; // -&gt; SyntaxError
+null++; // -&gt; SyntaxError
+undefined++; // -&gt; NaN
+$++; // -&gt; NaN
+console.log++; // -&gt; NaN
+NaN++; // -&gt; NaN
+
+let _true = true;
+_true++;
+_true; // -&gt; 2
+</code></pre>
+<h2 id="6">6.</h2>
+<pre><code class="language-javascript">undefined + false
+</code></pre>
+<blockquote>
+<p>While false can be converted to a number, undefined cannot.<br>
+<code>Number(undefined); // -&gt; NaN</code><br>
+<code>Number(false); // -&gt; 0</code><br>
+<code>NaN + 0; // -&gt; NaN</code></p>
+</blockquote>
+<h2 id="7">7.</h2>
+<pre><code class="language-javascript">&quot;&quot; &amp;&amp; -0
+</code></pre>
+<p>考察<code>&amp;&amp;</code>运算符的逻辑。<br>
+第一个表达式为 false，直接返回第一个表达式的值。<br>
+第一个表达式为 true，则返回第二个表达式的值。</p>
+<p>此题第一个表达式为 false ，则返回第一个，即 <code>&quot;&quot;</code>。</p>
+<h1 id="参考">参考</h1>
+<p><a href="https://chinese.freecodecamp.org/news/javascript-implicit-type-conversion/">JavaScript 隐式类型转换，一篇就够了！</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[面试官：实现一个自己的 Promise 吧！(WIP)]]></title>
+        <id>https://CallanBi.github.io/post/mian-shi-guan-shi-xian-yi-ge-zi-ji-de-promise-ba/</id>
+        <link href="https://CallanBi.github.io/post/mian-shi-guan-shi-xian-yi-ge-zi-ji-de-promise-ba/">
+        </link>
+        <updated>2022-04-21T14:52:23.000Z</updated>
+        <content type="html"><![CDATA[<p>今天面试官问了我这个问题，写得磕磕绊绊的，最后也没写出来，复盘一下。</p>
+<p>Promise 的本质：回调函数，被封装在内部。</p>
+<p>参考<a href="https://zhuanlan.zhihu.com/p/58428287">这篇文章</a>，我先实现了一个基础的 Promise：</p>
+<pre><code class="language-javascript">class MyPromise {
+    static cbs: Array&lt;(val: any) =&gt; any&gt; = [];
+
+    static errorCbs: Array&lt;(err: any) =&gt; any&gt; = [];
+
+    status: 'pending' | 'fulfilled' | 'rejected' = 'pending';
+
+    data: any = undefined;
+
+    constructor(callback: (resolve: MyPromise['resolve'], reject: MyPromise['reject']) =&gt; any) {
+        try {
+            callback(this.resolve, this.reject);
+        } catch (e) {
+            this.reject(e);
+        }
+    }
+
+    resolve = (val: any) =&gt; {
+        this.status = 'fulfilled';
+
+        setTimeout(() =&gt; {
+            // 加上 setTimeout 是为了确保 cbs 长度大于0
+            MyPromise.cbs.forEach(f =&gt; f(val));
+        });
+
+        this.data = val;
+    }
+
+    reject = (reason: any) =&gt; {
+        this.status = 'rejected';
+        setTimeout(() =&gt; {
+            MyPromise.errorCbs.forEach(f =&gt; f(reason));
+        })
+
+        this.data = reason;
+    }
+
+    then = (fun: (data: any) =&gt; any) =&gt; {
+        MyPromise.cbs.push(fun);
+        return this;
+    }
+
+    catch = (onRejected: (err: any) =&gt; any) =&gt; {
+        setTimeout(() =&gt; {
+            MyPromise.errorCbs.push(onRejected);
+        });
+        return this;
+    }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[TS经典类型体操：联合类型如何转为转交叉类型？需要知道三个点：分配律、逆变位置、逆变和协变]]></title>
+        <id>https://CallanBi.github.io/post/dang-ts-de-lian-he-lei-xing-he-jiao-cha-lei-xing-yu-dao-han-shu/</id>
+        <link href="https://CallanBi.github.io/post/dang-ts-de-lian-he-lei-xing-he-jiao-cha-lei-xing-yu-dao-han-shu/">
+        </link>
+        <updated>2022-03-24T03:06:00.000Z</updated>
+        <content type="html"><![CDATA[<p>来看一个经典的类型体操问题：如何实现一个 UnionToIntersection？</p>
+<p>具体地说，这个问题有三个子问题：联合类型的分配律、 逆变位置、逆变和协变。我们在递归地解决问题的过程中，递归地给出解答。</p>
+<pre><code>// test case
+type U = UnionToIntersection&lt;{ a: string } | { b: number }&gt; // type U = {  a: string } &amp; { b: number };
+</code></pre>
+<p>注意，输入不能是原始类型的联合类型，因为原始类型的交叉类型是 <code>never</code>。</p>
+<p>这个时候，就要用到这两个类型与函数的奇妙碰撞了。</p>
+<h2 id="联合类型的分配律">联合类型的分配律</h2>
+<p>我们知道联合类型遵从分配律。当我们将一个联合类型如 <code>{ a: string } | { b: number }</code> 传入一个类型 <code>type T&lt;U&gt;</code> 时，<code>type T&lt;{ a: string } | { b: number }&gt;</code> 实际上等价于 <code>type T&lt;{ a: string }&gt; | type T&lt;{ b: number }&gt;</code>。</p>
+<p>下面这个是<a href="https://www.typescriptlang.org/docs/handbook/2/conditional-types.html">官网</a>的解释。</p>
+<figure data-type="image" tabindex="1"><img src="https://CallanBi.github.io/post-images/1650297261036.png" alt="" loading="lazy"></figure>
+<p>那如果我们把 <code>type T&lt;U&gt;</code> 写成这个样子：</p>
+<pre><code>type ToUnionOfFunction&lt;T&gt; = T extends any ? (x: T) =&gt; any : never;
+</code></pre>
+<p>即，我们构造一个将传入的联合类型作为参数的函数。我们将上面的 test case 传入这个类型：</p>
+<pre><code>type Functions = ToUnionOfFunction&lt;{ a: string } | { b: number }&gt; 
+</code></pre>
+<p>这个时候，结果就变成了：</p>
+<pre><code>type Functions =
+    | ((x: { a: string }) =&gt; any)
+    | ((x: { b: number }) =&gt; any)
+</code></pre>
+<p>由于分配律，我们得到了两个参数不同的函数的联合类型。</p>
+<p>这个时候我们怎么得到交叉类型呢？</p>
+<p>锵锵！看下面！</p>
+<pre><code>type UnionToIntersection&lt;T&gt; =  ToUnionOfFunction&lt;T&gt; extends (x: infer P) =&gt; any ? P : never;
+</code></pre>
+<p>我们将<code>ToUnionOfFunction&lt;T&gt;</code> 解开后便是 <code>(( (x: { a: string }) =&gt; any) | ( (x: { b: number }) =&gt; any) ) extends (x: infer P)  =&gt; any ? P : never</code> 。</p>
+<p>在 TypeScript 的<a href="https://github.com/Microsoft/TypeScript/pull/21496">这个 PR </a>中有一句话：</p>
+<figure data-type="image" tabindex="2"><img src="https://CallanBi.github.io/post-images/1650299061909.png" alt="" loading="lazy"></figure>
+<blockquote>
+<p>multiple candidates for the same type variable in contra-variant positions causes an intersection type to be inferred.</p>
+</blockquote>
+<p>即：在<strong>逆变位置</strong>的同一类型变量中的多个候选会被推断成交叉类型。</p>
+<p>基于这个性质，我们的<code>UnionToIntersection&lt;T&gt;</code>便满足测试用例了。</p>
+<h2 id="逆变位置到底是个什么">逆变位置到底是个什么？</h2>
+<p>首先记住一句话：函数参数是逆变的，而对象属性是协变的。</p>
+<p>变量处于逆变位置就是<strong>这个变量是一个函数的参数</strong>。</p>
+<h2 id="到底什么是逆变和协变">到底什么是逆变和协变？！</h2>
+<p>在<a href="https://jkchao.github.io/typescript-book-chinese/tips/covarianceAndContravariance.html#%E4%B8%80%E4%B8%AA%E6%9C%89%E8%B6%A3%E7%9A%84%E9%97%AE%E9%A2%98">《深入理解 TypeScript》</a> 的 逆变和协变 一节中有详细介绍。</p>
+<p>《深入理解 TypeScript》是本好书呀，建议多看看。</p>
+<p>OK，这三个问题解决完之后，我们对这个经典问题也算是搞懂了。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一个前端的 Golang 语法层面入门感悟（持续补充）]]></title>
+        <id>https://CallanBi.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu/</id>
+        <link href="https://CallanBi.github.io/post/yi-ge-qian-duan-de-golang-ji-chu-xue-xi-gan-wu/">
+        </link>
+        <updated>2021-10-23T12:53:01.000Z</updated>
+        <content type="html"><![CDATA[<p>写本文主要想对比下 Golang 和通常前端所用的日常开发语言，如 JS 和 TS 之间的异同，以便更好地切换开发时的心智模式。</p>
+<h1 id="关于变量作用域">关于变量作用域</h1>
+<p>Golang 的作用域好像与 ES6 的 let 变量作用域相同。</p>
+<p><strong>The Way To Go 中的例子</strong></p>
+<ol>
+<li>输出 GOG</li>
+</ol>
+<pre><code class="language-python">package main
+
+var a = &quot;G&quot;
+
+func main() {
+   n()
+   m()
+   n()
+}
+
+func n() { print(a) }
+
+func m() {
+   a := &quot;O&quot;
+   print(a)
+}
+</code></pre>
+<ol start="2">
+<li>输出 GOO</li>
+</ol>
+<pre><code class="language-python">package main
+
+var a = &quot;G&quot;
+
+func main() {
+   n()
+   m()
+   n()
+}
+
+func n() {
+   print(a)
+}
+
+func m() {
+   a = &quot;O&quot;
+   print(a)
+}
+</code></pre>
+<ol start="3">
+<li>输出GOG</li>
+</ol>
+<pre><code class="language-python">package main
+
+var a string
+
+func main() {
+   a = &quot;G&quot;
+   print(a)
+   f1()
+}
+
+func f1() {
+   a := &quot;O&quot;
+   print(a)
+   f2()
+}
+
+func f2() {
+   print(a)
+}
+</code></pre>
+<p>注意 <code>f2()</code> 中的 <code>print(a)</code>，读的是全局变量<code>a</code>，而不是函数执行域中<code>f1()</code>的<code>a</code>。</p>
+<h1 id="关于包导出">关于包导出</h1>
+<p>Golang 通常一个目录为一个包（package）。不像 JS 中常见的包管理机制（如 ESM等），Golang 包内成员不需要用<code>export</code>等关键字显式声明导出。</p>
+<p>导出的成员函数应<strong>以大写字母开头</strong>，否则不可以导出（Goland IDE 如果引用了包内小写的函数，会有报错提示，点击导出后 IDE 会将函数开头改成大写字母）。</p>
+<h1 id="三-变参函数">三、变参函数</h1>
+<p>Golang 的变参函数类似于解构赋值，但有略微不同。如 <strong>The Way To Go</strong> 中的例子。</p>
+<ol>
+<li>当变参函数想要拿到剩余变长参数所组成的切片，在表示切片类型时，类似解构赋值的三点运算写在前面：</li>
+</ol>
+<pre><code class="language-python">func Greeting(prefix string, who ...string) // ...string 表示 []string 这一切片类型
+Greeting(&quot;hello:&quot;, &quot;Joe&quot;, &quot;Anna&quot;, &quot;Eileen&quot;)
+</code></pre>
+<ol start="2">
+<li>当将切片传递给变参函数时，类似解构赋值的三点运算写在切片变量后面：</li>
+</ol>
+<pre><code class="language-python">package main
+
+import &quot;fmt&quot;
+
+func main() {
+    x := min(1, 3, 2, 0)
+    fmt.Printf(&quot;The minimum is: %d\n&quot;, x)
+    slice := []int{7,9,3,5,1}
+    x = min(slice...) // 写在后面
+    fmt.Printf(&quot;The minimum in the slice is: %d&quot;, x)
+}
+
+func min(s ...int) int {
+    if len(s) == 0 {
+        return 0
+    }
+    min := s[0]
+    for _, v := range s {
+        if v &lt; min {
+            min = v
+        }
+    }
+    return min
+}
+</code></pre>
+<h1 id="关于结构体的类型">关于结构体的类型</h1>
+<p>我们知道在 TypeScript 中，对象的类型只要形状一致，即认为该对象属于某一类型：</p>
+<pre><code class="language-javascript">type Options = {
+  par1: string;
+  par2: number;
+  par3: any;
+}
+
+const instance1: Options = {
+  par1: &quot;aaa&quot;,
+  par2: 123,
+  par3: &quot;bbb&quot;,
+}
+
+const instance2 = {
+  par1: &quot;aaa&quot;,
+  par2: 123,
+  par3: &quot;bbb&quot;,
+}
+
+const instance3: Options = instance2; // 无报错
+</code></pre>
+<p>但在 Golang 中并非如此。例子在下面：</p>
+<p><strong>varargs.go</strong></p>
+<pre><code class="language-python">package varargs
+
+import (
+  &quot;fmt&quot;
+)
+
+type Options struct {
+  Par1 string
+  Par2 int64
+  Par3 interface{}
+}
+
+func PrintVarArgsUsingStruct(para *Options) {
+  fmt.Print(&quot;\n\nPrintVarArgsUsingStruct: &quot;, *para)
+}
+</code></pre>
+<p><strong>sturcttest.go</strong></p>
+<pre><code class="language-python">package structtest
+
+import (
+  &quot;fmt&quot;
+
+  &quot;goSimplePractice/varargs&quot;
+)
+
+func Test() {
+  fmt.Print(&quot;\n\nstructTest: &quot;)
+
+  varMadeFromType := &amp;varargs.Options{Par1: &quot;123&quot;, Par2: 19980416, Par3: &quot;testTestTest&quot;}
+  varMadeFromStruct := &amp;struct {
+    Par1 string
+    Par2 int64
+    Par3 interface{}
+  }{Par1: &quot;123&quot;, Par2: 19980416, Par3: &quot;testTestTest&quot;}
+
+  varargs.PrintVarArgsUsingStruct(varMadeFromType)
+
+  // varargs.PrintVarArgsUsingStruct(varMadeFromStruct)
+  // Output: Cannot use 'varMadeFromStruct' (type *struct {...}) as the type *Options
+
+  varargs.PrintVarArgsUsingStruct((*varargs.Options)(varMadeFromStruct)) // ✅
+}
+</code></pre>
+<p>事实上，在 golang 等强类型语言中无形状这一说法，因为 golang 不是动态类型语言，无需为兼容弱类型的对象做妥协。但有完全相同「形状」，即完全相同的字段（名字、个数和类型）的结构体可以互相转换。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[TypeScript + React 个人最佳实践(WIP持续补充中)]]></title>
+        <id>https://CallanBi.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/</id>
+        <link href="https://CallanBi.github.io/post/typescript-react-ge-ren-zui-jia-shi-jian-wip-chi-xu-bu-chong-zhong/">
+        </link>
+        <updated>2021-07-03T16:11:47.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="前置工作">前置工作</h1>
+<ol>
+<li><a href="https://reactjs.org/docs/static-type-checking.html#typescript">阅读React Doc 中 TS 部分</a></li>
+<li><a href="https://reactjs.org/docs/static-type-checking.html#typescript">阅读 TypeScript Playground 中 React 部分</a></li>
+</ol>
+<h1 id="引入-react永远使用命名空间导入namespace-import">引入 React：永远使用命名空间导入（namespace import）</h1>
+<pre><code class="language-javascirpt">import * as React from 'react';
+import { useState } from 'react'; // 可以单独导出一遍内部项
+import * as ReactDom from 'react-dom';
+</code></pre>
+<p>不推荐 <code>import React from 'react'</code>。<a href="https://twitter.com/dan_abramov/status/1308739731551858689">👉为什么？</a><br>
+这种引入方式被称为 <code>default export</code> 。不推荐的原因是第React 仅仅是作为一个命名空间存在的，我们并不会像使用一个值一样来使用 React。从 React 16.13.0 开始，React 的导出方式也已经更正为 <code>export {xxx, ...} </code>的形式了(<a href="https://github.com/facebook/react/commit/60016c448bb7d19fc989acd05dda5aca2e124381#diff-a9c08afc9ba1304a73e4235b3016b97c">commit</a>)。之所以<code>default export</code>还可以使用，是因为目前 React 的构建产物是 Commonjs 规范的，webpack 等构建工具做了兼容。</p>
+<h1 id="组件开发">组件开发</h1>
+<h2 id="1-尽量使用function-component声明即-reactfc">1. 尽量使用Function Component声明，即 React.FC：</h2>
+<pre><code class="language-javascript">export interface Props {
+  /** The user's name */
+  name: string;
+  /** Should the name be rendered in bold */
+  priority?: boolean
+}
+
+const PrintName: React.FC&lt;Props&gt; = (props) =&gt; {
+  return (
+    &lt;div&gt;
+      &lt;p style={{ fontWeight: props.priority ? &quot;bold&quot; : &quot;normal&quot; }}&gt;{props.name}&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}
+</code></pre>
+<p>我一般在开发时使用 vscode snippets 快速生成：</p>
+<pre><code class="language-json">&quot;Functional, Folder Name&quot;: {
+    &quot;prefix&quot;: &quot;ff&quot;,
+    &quot;body&quot;: [
+      &quot;import * as React from 'react';&quot;,
+      &quot;&quot;,
+      &quot;const { useRef, useState, useEffect, useMemo } = React;&quot;,
+      &quot;&quot;,
+      &quot;&quot;,
+      &quot;interface ${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}Props {&quot;,
+      &quot;&quot;,
+      &quot;}&quot;,
+      &quot;&quot;,
+			&quot;const defaultProps: ${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}Props = {};&quot;,
+			&quot;&quot;,
+      &quot;const ${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}: React.FC&lt;${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}Props&gt; = (props: React.PropsWithChildren&lt;${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/}Props&gt; = defaultProps) =&gt; {&quot;,
+      &quot;  const { } = props;&quot;,
+      &quot;&quot;,
+      &quot;  return (&quot;,
+      &quot;&quot;,
+      &quot;  );&quot;,
+      &quot;};&quot;,
+      &quot;&quot;,
+      &quot;export default ${TM_DIRECTORY/.*[\\\\\\\\\\\\/](.*)$/$1/};&quot;,
+      &quot;&quot;
+    ],
+    &quot;description&quot;: &quot;Generate a functional component template&quot;
+  },
+</code></pre>
+<h1 id="hook-相关">Hook 相关</h1>
+<p>推荐安装vscode 插件：<a href="https://marketplace.visualstudio.com/items?itemName=AlDuncanson.react-hooks-snippets">React Hooks Snippets</a> 快速写 hook，提高开发效率。</p>
+<h2 id="2-usestatet-当状态初始值为空时推荐写出完整泛型否则可以自动推断类型">2. useState<T>： 当状态初始值为空时，推荐写出完整泛型，否则可以自动推断类型。</h2>
+<p>原因：一些状态初始值为空时，需要显示地声明类型：</p>
+<pre><code class="language-javascript">const [user, setUser] = React.useState&lt;User | null&gt;(null)
+</code></pre>
+<p>注意：如果初始值为 undefined，可不用在泛型中加上 undefined。</p>
+<h2 id="3-usememo-和-usecallback-会隐式推断类型推荐不传泛型">3. useMemo() 和 useCallback() 会隐式推断类型，推荐不传泛型</h2>
+<p>注：不要经常用useCallback，因为也会增加开销。仅当：</p>
+<ul>
+<li>包装在 <code>React.memo()</code>（或 shouldComponentUpdate ）中的组件接受回调 prop;</li>
+<li>当函数用作其他 hooks 的依赖项时 <code>useEffect(...，[callback])</code>。</li>
+</ul>
+<h2 id="4-自定义hook如果返回为数组需要手动添加-const-断言">4. 自定义hook如果返回为数组，需要手动添加 const 断言：</h2>
+<pre><code class="language-javascript">function useLoading() {
+  const [isLoading, setLoading] = React.useState(false);
+  const load = (aPromise: Promise&lt;any&gt;) =&gt; {
+    setLoading(true)
+    return aPromise.then(() =&gt; setLoading(false));
+  }
+  // 实际需要: [boolean, typeof load] 类型
+  // 而不是自动推导的：(boolean | typeof load)[]
+  return [isLoading, load] as const;
+}
+</code></pre>
+<p>或者可以直接定义返回类型：</p>
+<pre><code class="language-javascript">export function useLoading(): [
+  boolean,
+  (aPromise: Promise&lt;any&gt;) =&gt; Promise&lt;any&gt;
+] {
+  const [isLoading, setState] = React.useState(false)
+  const load = (aPromise: Promise&lt;any&gt;) =&gt; {
+    setState(true)
+    return aPromise.then(() =&gt; setState(false))
+  }
+  return [isLoading, load]
+}
+</code></pre>
+<h1 id="其他">其他</h1>
+<h2 id="5-使用默认参数值代替默认属性">5. 使用默认参数值代替默认属性</h2>
+<pre><code class="language-javascript">interface GreetProps { age?: number }
+const defaultProps: GreetProps = { age: 21 };
+const Greet = (props: GreetProps = defaultProps) =&gt; {
+  /* ... */
+}
+</code></pre>
+<p>原因：Function Component 的 defaultProps <a href="https://twitter.com/hswolff/status/1133759319571345408">最终会被废弃</a>，不推荐使用。<br>
+如果仍要使用defaultProps，推荐如下方式：</p>
+<pre><code class="language-javascript">interface IProps {
+  name: string
+}
+const defaultProps = {
+  age: 25,
+};
+
+// 类型定义
+type GreetProps = IProps &amp; typeof defaultProps;
+const Greet = (props: GreetProps) =&gt; &lt;div&gt;&lt;/div&gt;
+Greet.defaultProps = defaultProps;
+
+// 使用
+const TestComponent = (props: React.ComponentProps&lt;typeof Greet&gt;) =&gt; {
+  return &lt;h1 /&gt;
+}
+const el = &lt;TestComponent name=&quot;foo&quot; /&gt;
+</code></pre>
+<h2 id="6-建议使用-interface-定义组件-propsts-官方推荐做法使用-type-也可不强制">6. 建议使用 Interface 定义组件 props（TS 官方推荐做法），使用 type 也可，不强制</h2>
+<p>type 和 interface 的区别：type 类型不能二次编辑，而 interface 可以随时扩展。</p>
+<h2 id="7-使用-componentprops-获取未被导出的组件参数类型使用-returntype-获取返回值类型">7. 使用 ComponentProps 获取未被导出的组件参数类型，使用 ReturnType 获取返回值类型</h2>
+<p>获取组件参数类型：</p>
+<pre><code class="language-javascript">// 获取参数类型
+import { Button } from 'library' // 但是未导出props type
+type ButtonProps = React.ComponentProps&lt;typeof Button&gt; // 获取props
+type AlertButtonProps = Omit&lt;ButtonProps, 'onClick'&gt; // 去除onClick
+const AlertButton: React.FC&lt;AlertButtonProps&gt; = props =&gt; (
+  &lt;Button onClick={() =&gt; alert('hello')} {...props} /&gt;
+)
+</code></pre>
+<p>获取返回值类型：</p>
+<pre><code class="language-javascript">// 获取返回值类型
+function foo() {
+  return { baz: 1 }
+}
+type FooReturn = ReturnType&lt;typeof foo&gt; // { baz: number }
+</code></pre>
+<h2 id="8-对-type-或-interface-进行注释时尽量使用-以便获得更好的类型提示">8. 对 type 或 interface 进行注释时尽量使用 /** */，以便获得更好的类型提示</h2>
+<pre><code class="language-javascript">/* ✅ */
+/**
+ * @param a 注释1
+ * @param b 注释2
+ */
+type Test = {
+  a: string;
+  b: number;
+};
+const testObj: Test = {
+  a: '123',
+  b: 234,
+};
+</code></pre>
+<p>当 hover 到 <code>Test</code> 时类型提示更为友好：<br>
+<img src="https://CallanBi.github.io/post-images/1625414942775.png" alt="" loading="lazy"></p>
+<h2 id="9-组件-props-ts-类型规范">9. 组件 Props ts 类型规范</h2>
+<pre><code class="language-javascript">type AppProps = {
+  /** string */
+  message: string;
+  /** number */
+  count: number;
+  /** boolean */
+  disabled: boolean;
+  /** 基本类型数组 */
+  names: string[];
+  /** 字符串字面量 */
+  status: 'waiting' | 'success';
+  /** 对象：列出对象全部属性 */
+  obj3: {
+    id: string;
+    title: string;
+  };
+  /** item 为对象的数组 */
+  objArr: {
+    id: string;
+    title: string;
+  }[];
+  /** 字典*/
+  dict: Record&lt;string, MyTypeHere&gt;;
+  /** 任意完全不会调用的函数 */
+  onSomething: Function;
+  /** 没有参数&amp;返回值的函数 */
+  onClick: () =&gt; void;
+  /** 携带参数的函数 */
+  onChange: (id: number) =&gt; void;
+  /** 携带点击事件的函数, 不要再用 e: any 了 */
+  onClick(e: React.MouseEvent&lt;HTMLButtonElement&gt;): void;
+  /** 可选的属性 */
+  optional?: OptionalType;
+  children: React.ReactNode; // 最佳，支持所有类型(JSX.Element, JSX.Element[], string)
+  renderChildren: (name: string) =&gt; React.ReactNode;
+  style?: React.CSSProperties;
+  onChange?: React.FormEventHandler&lt;HTMLInputElement&gt;; // 表单事件
+};
+</code></pre>
+<h2 id="10-组件中-event-处理">10. 组件中 event 处理</h2>
+<p>常见的Eventl类型：</p>
+<pre><code class="language-javascript">React.SyntheticEvent&lt;T = Element&gt;
+React.ClipboardEvent&lt;T = Element&gt;
+React.DragEvent&lt;T = Element&gt;
+React.FocusEvent&lt;T = Element&gt;
+React.FormEvent&lt;T = Element&gt;
+React.ChangeEvent&lt;T = Element&gt;
+React.KeyboardEvent&lt;T = Element&gt;
+React.MouseEvent&lt;T = Element&gt;
+React.TouchEvent&lt;T = Element&gt;
+React.PointerEvent&lt;T = Element&gt;
+React.UIEvent&lt;T = Element&gt;
+React.WheelEvent&lt;T = Element&gt;
+React.AnimationEvent&lt;T = Element&gt;
+React.TransitionEvent&lt;T = Element&gt;
+</code></pre>
+<p>定义事件回调函数：</p>
+<pre><code class="language-javascript">type changeFn = (e: React.FormEvent&lt;HTMLInputElement&gt;) =&gt; void;
+</code></pre>
+<p>如果不太关心事件的类型，可以直接使用 React.SyntheticEvent，如果目标表单有想要访问的自定义命名输入，可以使用类型扩展:</p>
+<pre><code class="language-javascript">const App: React.FC = () =&gt; {
+  const onSubmit = (e: React.SyntheticEvent) =&gt; {
+    e.preventDefault();
+    const target = e.target as typeof e.target &amp; {
+      password: { value: string; };
+    }; // 类型扩展
+    const password = target.password.value;
+  };
+  return (
+    &lt;form onSubmit={onSubmit}&gt;
+      &lt;div&gt;
+        &lt;label&gt;
+          Password:
+          &lt;input type=&quot;password&quot; name=&quot;password&quot; /&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;input type=&quot;submit&quot; value=&quot;Log in&quot; /&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  );
+};
+</code></pre>
+<h2 id="11-尽量使用-optional-channing">11. 尽量使用 optional channing</h2>
+<h2 id="12-尽量使用-reactcomponentpropstypeof-component-减少非必要props导出">12. 尽量使用 React.ComponentProps<typeof Component> 减少非必要props导出</h2>
+<h2 id="13-不要在-type-或-interface-中使用函数声明">13. 不要在 type 或 interface 中使用函数声明</h2>
+<pre><code class="language-javascript">/** ✅ */
+interface ICounter {
+  start: (value: number) =&gt; string
+}
+
+/** ❌ */
+interface ICounter1 {
+  start(value: number): string
+}
+</code></pre>
+<h2 id="14-当局部组件结合多组件进行组件间状态通信时如果不是特别复杂则不需要用mobx或者-建议结合-usereducer-和-usecontext-一起使用频繁的组件间通信最佳实践">14. 当局部组件结合多组件进行组件间状态通信时，如果不是特别复杂，则不需要用mobx或者 建议结合 useReducer() 和 useContext() 一起使用，频繁的组件间通信最佳实践：</h2>
+<p><code>Store.ts</code></p>
+<pre><code class="language-javascript">import * as React from 'react';
+
+export interface State {
+  state1: boolean;
+  state2: boolean;
+}
+
+export const initState: State = {
+  state1: false,
+  state2: true,
+};
+
+export type Action = 'action1' | 'action2';
+
+export const StoreContext = React.createContext&lt;{
+  state: State;
+  dispatch: React.Dispatch&lt;Action&gt;;
+}&gt;({ state: initState, dispatch: value =&gt; { /** noop */ } });
+
+
+export const reducer: React.Reducer&lt;State, Action&gt; = (state, action) =&gt; {
+ // 用 reducer 的好处之一是可以拿到之前的 state
+  switch (action) {
+    case 'action1':
+      return { ...state, state1: !state.state1 };
+    case 'action2':
+      return { ...state, state2: !state.state2 };
+    default:
+      return state;
+  }
+};
+</code></pre>
+<p><code>WithProvider.tsx</code></p>
+<pre><code class="language-javascript">import * as React from 'react';
+import { StoreContext, reducer, initState } from './store';
+
+const { useReducer } = React;
+
+const WithProvider: React.FC&lt;Record&lt;string, unknown&gt;&gt; = (props: React.PropsWithChildren&lt;Record&lt;string, unknown&gt;&gt;) =&gt; {
+  // 将 state 作为根节点的状态注入到子组件中
+  const [state, dispatch] = useReducer(reducer, initState);
+  const { children } = props;
+
+  return &lt;StoreContext.Provider value={{ state, dispatch }}&gt;{children}&lt;/StoreContext.Provider&gt;;
+};
+
+export default WithProvider;
+</code></pre>
+<p>父组件：</p>
+<pre><code class="language-javascript">import * as React from 'react';
+import WithProvider from './withProvider';
+import Component1 from './components/Component1';
+import Component2 from './components/Component2';
+
+const { useRef, useState, useEffect, useMemo } = React;
+
+interface RankProps {}
+
+const defaultProps: RankProps = {};
+
+const Rank: React.FC&lt;RankProps&gt; = (props: React.PropsWithChildren&lt;RankProps&gt; = defaultProps) =&gt; {
+  const {} = props;
+
+  return (
+    &lt;WithProvider&gt;
+      &lt;Component1 /&gt;
+      &lt;Component2 /&gt;
+    &lt;/WithProvider&gt;
+  );
+};
+
+
+export default Rank;
+
+</code></pre>
+<p>子组件只需要 import <code>StoreContext</code> 之后 <code>useContext()</code> 就能得到 state 和 dispatch</p>
+<pre><code class="language-javascript">import * as React from 'react';
+import { StoreContext } from '../../store';
+
+const { useContext } = React;
+
+interface Component1Props {}
+
+const defaultProps: Component1Props = {};
+
+const Component1: React.FC&lt;Component1Props&gt; = (props: React.PropsWithChildren&lt;Component1Props&gt; = defaultProps) =&gt; {
+  const { state, dispatch } = useContext(StoreContext);
+
+  const {} = props;
+
+  return (
+    &lt;&gt;
+      state1: {state.state1 ? 'true' : 'false'}
+      &lt;button
+        type=&quot;button&quot;
+        onClick={(): void =&gt; {
+          dispatch('action1');
+        }}
+      &gt;
+        changeState1 with Action1
+      &lt;/button&gt;
+    &lt;/&gt;
+  );
+};
+
+export default React.memo(Component1); // 建议有context 的地方最好 memo 一下，提高性能
+
+</code></pre>
+<p><code>Store.ts</code> 和 <code>WithProvider.tsx</code> 可以配置成 vscode snippets，需要用到时直接使用。</p>
+<h2 id="15-类-golang-风格的异步接口最佳实践">15. 类 Golang 风格的异步接口最佳实践</h2>
+<pre><code class="language-javascript">const asyncTo = &lt;T, E = Error&gt;(p: Promise&lt;T&gt;): Promise&lt;[T, null] | [undefined, E]&gt; =&gt;
+  p.then&lt;[T, null]&gt;((data: T) =&gt; [data, null]).catch&lt;[undefined, E]&gt;((err: E) =&gt; [undefined, err]);
+
+const [res1, err1] = await asyncTo(new Promise(resolve =&gt; resolve('success'))); // res1: 'success', err1: null
+
+const [res2, err2] = await asyncTo(new Promise((_, reject) =&gt; reject('error'))); // res2: undefined, err2: 'error'
+</code></pre>
+<h1 id="参考">参考</h1>
+<p>[1] <a href="https://mp.weixin.qq.com/s/mUblBpj6pmdxz9mLKEDJTw">React + TypeScript 实践</a><br>
+[2] <a href="https://juejin.cn/post/6844903938093744135">精读《React Hooks 最佳实践》</a></p>
+<p><strong>欢迎在评论或 issue 中讨论，指出不合理之处，补充其他最佳实践~</strong></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[【译】使用 Webpack 拆包的 100% 正确的做法 / The 100% correct way to split your chunks with Webpack]]></title>
+        <id>https://CallanBi.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/</id>
+        <link href="https://CallanBi.github.io/post/yi-shi-yong-webpack-chai-bao-de-100-zheng-que-de-zuo-fa-the-100-correct-way-to-split-your-chunks-with-webpack/">
+        </link>
+        <updated>2021-05-09T09:45:45.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+<blockquote>
+<p>技术积累，从翻译优质文章开始。本文翻译自：<a href="https://medium.com/hackernoon/the-100-correct-way-to-split-your-chunks-with-webpack-f8a9df5b7758">The 100% correct way to split your chunks with Webpack</a></p>
+</blockquote>
+<!-- more -->
+<p>为自己网站的用户找出推送文件的最好方式是一件很麻烦的事。 太多不同的场景，不同的技术，不同的术语了。</p>
+<p>在这篇 Blog 中，我希望告诉你你想知道的一切，你可以：</p>
+<ol>
+<li>
+<p>了解哪种文件拆分策略最适合你的网站和用户</p>
+</li>
+<li>
+<p>知道怎么去做</p>
+</li>
+</ol>
+<p>根据 <a href="https://webpack.js.org/glossary/">Webpack 词汇表</a>，有两种不同类型的文件拆分方式。 这两个概念听起来可以互换，但显然并不是这样：</p>
+<p><strong>Bundle splitting</strong>：创建更多，更小的文件（但不管怎样，每个网络请求中都要加载它们），来优化缓存。<br>
+<strong>Code splitting</strong>：动态加载代码，用户可以仅下载他们正在查看的网站部分所需的代码。</p>
+<p>第二个概念听起来更加吸引人啊，对吧？其实，许多关于此的文章都似乎认为这是加载 JS 文件的唯一有价值的 case。</p>
+<p>但是我来告诉你，对于多数站点来说，第一个才是更有价值的方式，而且应该是你对网站所做的首要的事情。</p>
+<p>我们接着深入往下看。</p>
+<h1 id="bundle-splitting">Bundle splitting</h1>
+<p>Bundle splitting 背后的想法非常简单。 如果你有一个巨大的文件，当你更改了一行代码，用户必须再次下载整个文件。 但是，如果我们将其拆分为两个文件，则用户只需下载已更改的文件，浏览器会从缓存中读取另一个文件。</p>
+<p>值得注意的是，由于 Bundle splitting 是完全针对缓存的，所以对于首次访问的用户而言（拆与不拆）没什么区别。</p>
+<p>（我认为太多的性能讨论都与首次访问网站有关。也许这部分是因为「第一印象很重要」，另一块是因为它很容易量化。）</p>
+<p>当涉及到频繁访问的用户时，量化性能优化带来的影响可能很麻烦，但我们必须量化！</p>
+<p>下面是我在前一段中提到的情况：</p>
+<ul>
+<li>
+<p>Alice 每周访问我们的网站一次，持续10周</p>
+</li>
+<li>
+<p>我们每周一次发版</p>
+</li>
+<li>
+<p>我们每周都会更新「产品列表」页</p>
+</li>
+<li>
+<p>我们还有一个「产品详情」页，现在我们先不管它</p>
+</li>
+<li>
+<p>在第5周，我们向网站添加一个新的 npm 包</p>
+</li>
+<li>
+<p>第8周，我们更新了其中一个既有的 npm 包</p>
+</li>
+</ul>
+<p>一些人（比如我）希望这种情况尽可能符合实际。 这种做法并不好。实际情况并不重要，我们之后会找出原因。 （先留个铺垫！）</p>
+<h1 id="比较基准值">比较基准值</h1>
+<p>假设我们的 JavaScript 包总大小为 400 KB，目前以单个文件<code>main.js</code>的形式加载。</p>
+<p>我们的 Webpack config 看起来像这样（省略了无关的配置内容）：</p>
+<pre><code class="language-javascript">const path = require('path');
+
+module.exports = {
+  entry: path.resolve(__dirname, 'src/index.js'),
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+  },
+};
+</code></pre>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">当只有一个入口时，Webpack 会将打包结果 bundle 命名为「main.js」</div>
+<p>（对于那些刚开始学习缓存更新策略的人：每当我提到<code>main.js</code>时，实际上是在说<code>main.xMePWxHo.js</code>之类的东西，这一坨疯狂的字母串是文件内容的哈希。这意味着当程序中代码更改时会产生不同的文件名 ，从而迫使浏览器下载新文件。）</p>
+<p>每周我们会对网站进行一些新更改，包中内容哈希都会更改。 所以，在每周 Alice 访问我们的网站时，都必须要下载一个新的400 KB文件。</p>
+<p>如果我们要做一个花里胡哨的表，它看起来就像这样。</p>
+<figure data-type="image" tabindex="1"><img src="https://CallanBi.github.io/post-images/1620541076491.png" alt="" loading="lazy"></figure>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">世界上最没用的 Total 统计</div>
+<p>这10周积起来，<strong>就是 4.12 MB</strong>。</p>
+<p>我们可以做得更好。</p>
+<h2 id="拆分出-vendor-包">拆分出 vendor 包</h2>
+<p>让我们把包拆成<code>main.js</code>和<code>vendor.js</code>。</p>
+<p>很简单，类似于：</p>
+<pre><code class="language-javascript">
+const path = require('path');
+
+module.exports = {
+  entry: path.resolve(__dirname, 'src/index.js'),
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
+};
+</code></pre>
+<p>Webpack 4 尽力为你做到了最好，你不必告诉它你怎么拆分你的 bundle。</p>
+<p>这会导致一些话术比如：「哦🐂🍺，Webpack整挺好！」</p>
+<p>还有许多类似于「你tm到底对我的 bundle 做了什么？！」的疑问。</p>
+<p>铛铛！加上<code>optimization.splitChunks.chunks = 'all'</code>是一种「把所有 <code>node_modules</code>里的东西栋放到一个叫<code>vendors~main.js</code>的文件」的说法。</p>
+<p>有了这个基本的 bundle splitting 之后，Alice 还会在每次访问时下载一个新的200 KB的 main.js，但只会在第一周，第八周和第五周下载这个 200 KB 的 <code>vendor.js</code>。<br>
+<img src="https://CallanBi.github.io/post-images/1620542292178.png" alt="" loading="lazy"></p>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">巧了，这两个 bundle 的大小恰好是200 KB。</div>
+<p><strong>总共 2.64 MB。</strong></p>
+<p>减少36％，配置中添加了五行代码，还不赖。 在继续读这篇文章之前，现在就去实践下。 如果需要从Webpack 3 升级到4，不要担心，它非常无痛（而且免费！）。</p>
+<p>我觉得这种性能提升可能会更抽象，因为分散在十个星期，但其实交付给忠实用户的字节数减少了36％，我们应该为自己感到自豪。</p>
+<p>但我们还可以做得更好。</p>
+<h2 id="把每个-npm-包都拆出来">把每个 npm 包都拆出来</h2>
+<p>我们的<code>vendor.js</code>遇到了与原来<code>main.js</code>文件相同的问题——对其中一部分进行更改意味着需要重新下载它的全部。</p>
+<p>所以为什么不为每个npm包单独准备一个文件呢？ 这很容易做到。</p>
+<p>那让我们将<code>react</code>，<code>lodash</code>，<code>redux</code>，<code>moment</code>等分成不同的文件：</p>
+<pre><code class="language-javascript">const path = require('path');
+const webpack = require('webpack');
+
+module.exports = {
+  entry: path.resolve(__dirname, 'src/index.js'),
+  plugins: [
+    new webpack.HashedModuleIdsPlugin(), // 确保 hash 不被意外改变
+  ],
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+  },
+  optimization: {
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            //取得名称。例如 /node_modules/packageName/not/this/part.js
+            // 或 /node_modules/packageName
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+
+            // npm package 是 URL 安全的，但有些服务不喜欢 @ 符号
+            return `npm.${packageName.replace('@', '')}`;
+          },
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<p><a href="https://webpack.js.org/guides/caching/">这篇文档</a> 会很好地说明这里的大多数内容，但是我要向你解释一些有趣的部分，因为它们花了我巨长的时间才弄对。</p>
+<ul>
+<li>
+<p>Webpack 拥有一些聪明但实际上有点傻的默认配置，像：分割输出文件时最多可以包含3个文件，最小文件大小为30 KB（即比这小的文件都可以合并在一起）。 所以我覆盖了这些配置。</p>
+</li>
+<li>
+<p><code>cacheGroups</code>是我们定义 Webpack 如何将 chunks 到输出到 bundle 的规则。 这里有一个叫做「vendor」的，任何<code>node_modules</code>的包都在这里。 通常，你只需将输出文件的名称定义为字符串。 但是我将<code>name</code>定义为一个函数（将为每个已解析的文件调用该函数），从模块路径返回包的名称。 结果是，每个包都会生成一个文件，比如 <code>npm.react-dom.899sadfhj4.js</code>。</p>
+</li>
+<li>
+<p>发包时<a href="https://docs.npmjs.com/cli/v7/configuring-npm/package-json">包名称必须是 URL安全的</a>。所以我们不必用<code>encodeURI</code> 处理 <code>packageName</code> 。但是，我发现 .NET服务无法提供名称中带有@的文件（来自范围限定的包），所以我在此代码段中替换了该命名。</p>
+</li>
+<li>
+<p>整个配置很棒，因为它是一劳永逸的。 它无需维护——我不需要按名称引用任何包。</p>
+</li>
+</ul>
+<p>这时，Alice 仍每周重新加载我们200 KB的<code>main.js</code>文件；在首次访问时仍将下载200 KB的 npm 包，但她永远不会再次下载相同的包。<br>
+<img src="https://CallanBi.github.io/post-images/1620544773524.png" alt="" loading="lazy"></p>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">突然发现每个 npm 包都恰好是20 KB。 世所罕见！</div>
+<p><strong>这是2.24MB。</strong></p>
+<p>与比较基准值相比减少了44％，仅仅从博客文章中 copy/plate 了某些代码的你来说，这非常酷。</p>
+<p>我在想会不会有可能超过50％？</p>
+<p>那不是盖了帽了吗。</p>
+<h2 id="拆分应用的代码区域">拆分应用的代码区域</h2>
+<p>让我们关注下可怜的 Alice 一次又一次（甚至再一次）下载的<code>main.js</code>文件。</p>
+<p>前面我提到过，我们在此站点上有两个截然不同的部分：一个产品列表和一个产品详情页。 这些区域中每个区域的自身的代码为 25 KB（保留150 KB的共享代码）。</p>
+<p>现在，我们的“产品详情”页面变化不大，因为我们做得如此完美。 因此，如果我们将其分成单独的文件，则大多数时候都可以从缓存中提供。</p>
+<p>对此，我们应该搞些事情。</p>
+<p>我们手动地添加一些入口点，告诉 Webpack 为其中的每项创建一个文件。</p>
+<pre><code class="language-javascript">module.exports = {
+  entry: {
+    main: path.resolve(__dirname, 'src/index.js'),
+    ProductList: path.resolve(__dirname, 'src/ProductList/ProductList.js'),
+    ProductPage: path.resolve(__dirname, 'src/ProductPage/ProductPage.js'),
+    Icon: path.resolve(__dirname, 'src/Icon/Icon.js'),
+  },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash:8].js',
+  },
+  plugins: [
+    new webpack.HashedModuleIdsPlugin(), // 确保 hash 不被意外改变
+  ],
+  optimization: {
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            //取得名称。例如 /node_modules/packageName/not/this/part.js
+            // 或 /node_modules/packageName
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+
+            // npm package 是 URL 安全的，但有些服务不喜欢 @ 符号
+            return `npm.${packageName.replace('@', '')}`;
+          },
+        },
+      },
+    },
+  },
+};
+</code></pre>
+<p>靠谱的 Webpack还会为在 ProductList 和 ProductPage 之间共享的内容创建文件，使得我们不会得到重复的代码。</p>
+<p>大多数情况下，这将为亲爱的 Alice 省下额外的50 KB下载量。<br>
+<img src="https://CallanBi.github.io/post-images/1620545771325.png" alt="" loading="lazy"></p>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">我们在第6周调整了 icon，我十分确定你还记得</div>
+<p><strong>这些仅仅1.815 MB！</strong></p>
+<p>我们已经为 Alice 节省了高达56％的下载量，并且这种节省将（在我们的理论场景中）一直持续到时间尽头。</p>
+<p>我之前提到过，在测试之下的实际情况并不重要。 这是因为，无论你遇到什么情况，结论都是相同的：将你的应用拆分为合理的小文件，你的的用户就会下载更少的代码。</p>
+<hr />
+<p>很快，我将要讨论「code splitting」——另一种类型的文件拆解——但首先，我想解决你现在在想的三个疑惑点。</p>
+<h3 id="1有很多网络请求会不会很慢">#1：有很多网络请求会不会很慢？</h3>
+<p>答案是很大声的“不”。</p>
+<p>在 HTTP/1.1 时代曾经是这种情况，但是在 HTTP/2 中却不是这种情况。</p>
+<p>尽管，<a href="https://medium.com/@asyncmax/the-right-way-to-bundle-your-assets-for-faster-sites-over-http-2-437c37efe3ff">这篇2016年的文章</a>和<a href="http://engineering.khanacademy.org/posts/js-packaging-http2.htm">Khan Academy 2015年的帖子</a>都得出了这样的结论：即使使用HTTP/2，下载太多文件的速度仍然较慢。 但在这两个帖子中，「太多」文件意味着「几百」。 因此，请记住，如果你有数百个文件，才可能会达到并发限制。</p>
+<p>或者你想知道追溯到 Windows 10上的 IE11 对 HTTP/2 的支持。我对使用比这更早版本的环境的人进行了详尽的调查，他们一致向我保证，他们不在乎网站加载的速度如何。</p>
+<h3 id="2会不会-每个webpack-bundle-中都有开销样板代码">#2：会不会 每个Webpack bundle 中都有开销/样板代码？</h3>
+<p>确实。</p>
+<h3 id="3会不会因为拥有多个小文件而丧失了压缩方面的优势">#3：会不会因为拥有多个小文件而丧失了压缩方面（的优势）？</h3>
+<p>对，也确实会。</p>
+<p>呃，糟了：</p>
+<ul>
+<li>
+<p>更多的文件 = 更多 Webpack 样板代码</p>
+</li>
+<li>
+<p>更多的文件 = 更少的压缩</p>
+</li>
+</ul>
+<p>让我们对它来一个量化，使得我们确切知道需要担心的程度。</p>
+<p>……</p>
+<p>OK，我刚做了一个测试，一个190 KB的站点分为19个文件，添加到发送给浏览器的总字节数中大约增加了2％。</p>
+<p>所以……对于第一次访问有2%的增量，与此同时在之后的访问有 60% 减少量，直到宇宙的尽头。</p>
+<p>因此我们所需要担心的程度正确的是：完全没有。</p>
+<p>在测试 1 vs 19 个文件时，我在想我可以在一些不同的网络上使用它，包括HTTP/1.1。</p>
+<p>然后下面是我搞的表格，强力支撑了“文件越多越好”的想法：</p>
+<figure data-type="image" tabindex="2"><img src="https://CallanBi.github.io/post-images/1620547675439.png" alt="" loading="lazy"></figure>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">（从Firebase静态主机)加载的同一190 KB网站）</div>
+<p>在 3G 和 4G 上，当有 19 个文件时，此站点的加载时间减少了 30％。</p>
+<p>真的如此吗？</p>
+<p>这是噪点非常多的数据。 例如，在 Run 2 的 4G 网络上，站点加载了646毫秒，然后两次运行则花费了 1116毫秒——在什么都没做的情况下长了73％。 因此，宣称 HTTP/2 的速度提高了30％似乎有点狡猾。</p>
+<p>（即将推出：一种自定义图表类型，旨在可视化页面加载时间的差异。）</p>
+<p>我建了这张表，尝试量化 HTTP/2 的区别，但事实上我能唯一能说的是“可能没有多大区别”。</p>
+<p>真正奇怪是最后两排。 那是旧的 Windows 和 HTTP/1.1，我打赌速度会慢很多，但并非如此。我想我需更慢的网络。</p>
+<hr />
+<p>讲故事的时间到了！ 我从<a href="https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/">微软官网下载了Windows 7虚拟机</a>来测试这些内容。</p>
+<p>它附带了IE8，但我升级到IE9。</p>
+<p>所以我转到了微软的IE9下载页面，然后……<br>
+<img src="https://CallanBi.github.io/post-images/1620548267039.png" alt="" loading="lazy"></p>
+<div align=center style="margin: 0; padding: 0; margin-bottom: 30px; color: grey; ">我天。你在逗我？这还有什么好说哒</div>
+<p>最后关于 HTTP/2 的最后一句话。你知道它现在已经集成到 Node 中了吗？ 如果你想玩一下，我编写了一个带有 gzip，brotli 和响应缓存的<a href="https://gist.github.com/davidgilbertson/e5690c04e06c4882cf5761f8acff36ec">100行HTTP/2 服务器</a>，带来🚢新的测试乐趣。</p>
+<hr />
+<p>关于 bundle splitting 的一切就讲完了。 我觉得这种方法的唯一缺点就是必须不断说服人们相信加载许多小文件是OK的。</p>
+<hr />
+<h1 id="code-splitting别加载你不需要的代码">Code splitting（别加载你不需要的代码）</h1>
+<p>这种特别的方法只有在某些站点上才有意义，比如我的。</p>
+<p>我想应用我刚想出来的 20/20 规则：如果你的网站的某个部分只有20％的用户访问过，并且这个部分大过你站点 JavaScript 的20％，那么你只需要按需加载代码。</p>
+<p>试着调整这些数字，显然，还有比这更复杂的情况。 关键是要有一个阈值，可以确定 code splitting 对于你的网站到底合不合理。</p>
+<h2 id="怎么确定">怎么确定？</h2>
+<p>比如你有一个购物网站，并且想知道是否应该将「支付」代码分开，因为只有30％的用户可以走到支付流程。</p>
+<p><mark>你需要做的第一件事是卖质量更好的东西。</mark></p>
+<p>第二件事，是计算出这块完全唯一的代码量。 由于你在执行「code splitting」之前应该始终进行「bundle splitting」，所以你可能已经知道这部分代码有多少。</p>
+<p>（它可能比你想象的要小，所以在你跃跃欲试之前先把代码量累加一下。比如你有一个 React 站点，那么你的 store，reduce，路由，actions 等都将在整个站点上共享。 完全唯一的部分主要是一些组件和他们的工具。）</p>
+<p>然后你注意到，支付页面完全唯一的代码为 7 KB。 该网站的其余部分为 300 KB。 我看到这个会说，emm，我不会费力去拆分这块的代码，有这么几个原因：</p>
+<ul>
+<li>
+<p>预先加载它不会减慢速度。 记住你正在并行加载所有这些文件。 可以试试看记录 300 KB 和 307 KB之间的加载时间差异。</p>
+</li>
+<li>
+<p>如果你想之后加载这块的代码，那用户在点击「把我的钱拿走」的时候必须等待这块的文件——这个时候正是你想要它最平滑的时候。</p>
+</li>
+<li>
+<p>Code splitting 要求你改你的项目中的代码。 它引入了异步逻辑，而以前只有同步逻辑。 这不是什么造火箭的学问，但是也具有复杂性，因此我认为应该以可感觉到的用户体验改善为由（去做这件事）。</p>
+</li>
+</ul>
+<p>OK，以上就是所有的类似于「这项令人兴奋的技术可能不适用你」的派对扫兴者的话术了。</p>
+<p>我们来看下两个 code-splitting 的例子……</p>
+<h2 id="polyfills">Polyfills</h2>
+<p>我将从这里开始，因为它适用于大多数网站，并且是一个很好的简单入门。</p>
+<p>我在网站上使用了许多花哨的功能，因此我有可以导入我需要的所有polyfills的文件。 它包括以下八行：</p>
+<pre><code class="language-javascript">require('whatwg-fetch');
+require('intl');
+require('url-polyfill');
+require('core-js/web/dom-collections');
+require('core-js/es6/map');
+require('core-js/es6/string');
+require('core-js/es6/array');
+require('core-js/es6/object');
+</code></pre>
+<p>我直接在入口 <code>index.js</code> 的顶部导入此文件。</p>
+<pre><code class="language-javascript">import './polyfills';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App/App';
+import './index.css';
+
+const render = () =&gt; {
+  ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+}
+
+render(); // 对，目前这一行是无意义的
+</code></pre>
+<p>我们使用 bundle spiltting 部分中的 Webpack config，由于这里有四个 npm 包，我的 polyfill 将被自动拆分为四个不同的文件。 它们总共约 25 KB，并且90％的浏览器不需要它们，所以值得动态加载。</p>
+<p>使用 Webpack 4和 <code>import()</code> 语法（不要和没有括号的<code>import</code>语法搞混了），条件加载polyfill是非常容易的。</p>
+<pre><code class="language-javascript">import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App/App';
+import './index.css';
+
+const render = () =&gt; {
+  ReactDOM.render(&lt;App /&gt;, document.getElementById('root'));
+}
+
+if (
+  'fetch' in window &amp;&amp;
+  'Intl' in window &amp;&amp;
+  'URL' in window &amp;&amp;
+  'Map' in window &amp;&amp;
+  'forEach' in NodeList.prototype &amp;&amp;
+  'startsWith' in String.prototype &amp;&amp;
+  'endsWith' in String.prototype &amp;&amp;
+  'includes' in String.prototype &amp;&amp;
+  'includes' in Array.prototype &amp;&amp;
+  'assign' in Object &amp;&amp;
+  'entries' in Object &amp;&amp;
+  'keys' in Object
+) {
+  render();
+} else {
+  import('./polyfills').then(render);
+}
+</code></pre>
+<p>有道理吧？ 如果所有这些东西都支持的话，就渲染页面。 否则导入polyfills，然后渲染页面。 当此代码在浏览器中运行时，Webpack 运行时将处理这四个 npm 包的加载，并且在下载并解析它们后，调用<code>render()</code> 并继续进行。</p>
+<p>（顺便说一句，要使用<code>import()</code>，你将需要<a href="https://babeljs.io/docs/en/babel-plugin-syntax-dynamic-import/">Babel的dynamic-import plugin</a>。此外，正如Webpack文档所说，<code>import()</code><a href="https://webpack.js.org/guides/code-splitting/#dynamic-imports">用了promises</a>，你需要将这个polyfill与其他polyfill分开去polyfill。）</p>
+<p>很简单，是吧？</p>
+<p>下面是有些麻烦的例子……</p>
+<h2 id="基于路由的动态加载react-独占">基于路由的动态加载（React 独占）</h2>
+<p>回到 Alice 的例子，假设该网站现在有一个「管理」部分，商品销售者可以登录并管理他们想要出售的玩意。</p>
+<p>这一块具有许多完美的特性，大量的图表以及 npm 中的大型图标库。 我已经做了 bundle splitting，可以看到它们全部超过100 KB。</p>
+<p>当前，我有一个路由设置，当用户查看/admin URL时将呈现<code>&lt;AdminPage&gt;</code>。 当Webpack将所有内容打包在一起时，它将找到<code>import AdminPage from './AdminPage.js'</code>，然后说“喂，我需要在初始有效载荷中包括它”。</p>
+<p>但是我们不希望这样。 我们需要把这个引用放在 admin 页面动态导入里，比如<code>import('./AdminPage.js')</code>，Webpack 就会知道需要动态加载它。</p>
+<p>很酷，不需要任何配置。</p>
+<p>所以，我不不应该直接引用<code>AdminPage</code>，而是建另一个将在用户访问<code>/admin</code> URL时呈现的组件， 它可能看起来像这样：</p>
+<pre><code class="language-javascript">
+import React from 'react';
+
+class AdminPageLoader extends React.PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      AdminPage: null,
+    }
+  }
+
+  componentDidMount() {
+    import('./AdminPage').then(module =&gt; {
+      this.setState({ AdminPage: module.default });
+    });
+  }
+
+  render() {
+    const { AdminPage } = this.state;
+
+    return AdminPage
+      ? &lt;AdminPage {...this.props} /&gt;
+      : &lt;div&gt;Loading...&lt;/div&gt;;
+  }
+}
+
+export default AdminPageLoader;
+</code></pre>
+<p>这个概念很简单，对吧？ 组件<code>mount</code>后（意味着用户位于<code>/admin</code> URL），我们将动态加载<code>./AdminPage.js</code>，然后保存该组件的引用。</p>
+<p>在 render 方法中，我们仅仅简单地在等待<code>&lt;AdminPage&gt;</code>加载时渲染<code>&lt;div&gt; Loading ... &lt;/ div&gt;</code>，在<code>&lt;AdminPage&gt;</code>加载完成存储它。</p>
+<p>我只是出于好玩写了这个例子，实际上你只需要使用<code>react-loadable</code>来实现它，正如 <a href="https://reactjs.org/docs/code-splitting.html">React Code-Splitting</a> 文档说的那样。</p>
+<hr />
+<p>好啦，我想这就是全部了。有没有可以总结我上面说过的东西的句子，但用更少的文字？</p>
+<ul>
+<li>
+<p>如果人们多次访问你的网站，就把你的的代码分成许多小文件。</p>
+</li>
+<li>
+<p>如果你的网站上有大部分用户不访问的大块内容，动态加载这块代码。</p>
+</li>
+</ul>
+<p>感谢阅读。祝你今天愉快~</p>
+<p>靠，我忘了提 CSS 了。</p>
+<hr />
+<mark style="font-weight: bold; font-size: 25px">本文由本博客博主 Moltemort 翻译，转载本文请注明源链接</mark>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Back2Blog]]></title>
+        <id>https://CallanBi.github.io/post/back2blog/</id>
+        <link href="https://CallanBi.github.io/post/back2blog/">
+        </link>
+        <updated>2021-05-03T14:42:16.000Z</updated>
+        <content type="html"><![CDATA[<p>本科时自己买阿里云服务器搭的博客，因为服务器过期，数据没备份早已消失在风中，只剩下域名还在了🤷‍♂<br>
+工作10个月业务十分繁忙，回首来看总感觉积累的成长没得到记录。</p>
+<p>所以我决定重新Back2Blog，就从这个五一假期，从今天开始吧~</p>
+]]></content>
+    </entry>
+</feed>

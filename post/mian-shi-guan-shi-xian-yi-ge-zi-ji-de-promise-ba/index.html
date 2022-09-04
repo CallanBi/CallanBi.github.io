@@ -1,0 +1,255 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>面试官：实现一个自己的 Promise 吧！(WIP) | Callan Bi&#39;s Blog</title>
+<link rel="shortcut icon" href="https://CallanBi.github.io/favicon.ico?v=1662275411308">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://CallanBi.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="面试官：实现一个自己的 Promise 吧！(WIP) | Callan Bi&#39;s Blog - Atom Feed" href="https://CallanBi.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="今天面试官问了我这个问题，写得磕磕绊绊的，最后也没写出来，复盘一下。
+Promise 的本质：回调函数，被封装在内部。
+参考这篇文章，我先实现了一个基础的 Promise：
+class MyPromise {
+    static cbs:..." />
+    <meta name="keywords" content="js 基础" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://CallanBi.github.io">
+  <img class="avatar" src="https://CallanBi.github.io/images/avatar.png?v=1662275411308" alt="">
+  </a>
+  <h1 class="site-title">
+    Callan Bi&#39;s Blog
+  </h1>
+  <p class="site-description">
+    Callan Bi 的博客，记录技术成长和日常
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/CallanBi" target="_blank">
+          <i class="ri-github-line"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              面试官：实现一个自己的 Promise 吧！(WIP)
+            </h2>
+            <div class="post-info">
+              <span>
+                2022-04-21
+              </span>
+              <span>
+                1 min read
+              </span>
+              
+                <a href="https://CallanBi.github.io/tag/GEaQI2HdR/" class="post-tag">
+                  # js 基础
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>今天面试官问了我这个问题，写得磕磕绊绊的，最后也没写出来，复盘一下。</p>
+<p>Promise 的本质：回调函数，被封装在内部。</p>
+<p>参考<a href="https://zhuanlan.zhihu.com/p/58428287">这篇文章</a>，我先实现了一个基础的 Promise：</p>
+<pre><code class="language-javascript">class MyPromise {
+    static cbs: Array&lt;(val: any) =&gt; any&gt; = [];
+
+    static errorCbs: Array&lt;(err: any) =&gt; any&gt; = [];
+
+    status: 'pending' | 'fulfilled' | 'rejected' = 'pending';
+
+    data: any = undefined;
+
+    constructor(callback: (resolve: MyPromise['resolve'], reject: MyPromise['reject']) =&gt; any) {
+        try {
+            callback(this.resolve, this.reject);
+        } catch (e) {
+            this.reject(e);
+        }
+    }
+
+    resolve = (val: any) =&gt; {
+        this.status = 'fulfilled';
+
+        setTimeout(() =&gt; {
+            // 加上 setTimeout 是为了确保 cbs 长度大于0
+            MyPromise.cbs.forEach(f =&gt; f(val));
+        });
+
+        this.data = val;
+    }
+
+    reject = (reason: any) =&gt; {
+        this.status = 'rejected';
+        setTimeout(() =&gt; {
+            MyPromise.errorCbs.forEach(f =&gt; f(reason));
+        })
+
+        this.data = reason;
+    }
+
+    then = (fun: (data: any) =&gt; any) =&gt; {
+        MyPromise.cbs.push(fun);
+        return this;
+    }
+
+    catch = (onRejected: (err: any) =&gt; any) =&gt; {
+        setTimeout(() =&gt; {
+            MyPromise.errorCbs.push(onRejected);
+        });
+        return this;
+    }
+}
+</code></pre>
+
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://CallanBi.github.io/post/dang-ts-de-lian-he-lei-xing-he-jiao-cha-lei-xing-yu-dao-han-shu/">
+              <h3 class="post-title">
+                TS经典类型体操：联合类型如何转为转交叉类型？需要知道三个点：分配律、逆变位置、逆变和协变
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'dda136bbf45377c648de',
+    clientSecret: 'f43305dcc30bf8a19537657df304ae5532b31dda',
+    repo: 'my-blog-storage',
+    owner: 'CallanBi',
+    admin: ['CallanBi'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  
+  <a class="rss" href="https://CallanBi.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
